@@ -1,0 +1,118 @@
+pacman -Sy reflector
+reflector -c Mexico -a 6 --sort rate --save /etc/pacman.d/mirrirlist
+lsblk
+gdisk /dev/sda
+	n
+	default
+	default
+	+200M
+	L
+	efi
+	ef00
+
+	n
+	default
+	default
+	default
+	default
+
+	w
+lsblk
+cryptsetup -y -v luksFormat /dev/sda2
+	YES
+	passphrase
+	verify
+
+cryptsetup open /dev/sda2 cryptroot
+	passphrase
+
+mkfs.ext4 /dev/mapper/cryptroot
+mkfs.fat -F32 /dev/sda1
+lsblk
+mount /dev/mapper/cryptroot /mnt
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+lsblk
+
+pacstrap /mnt base linux-zen linux-firmware nano amd-ucode/intel-ucode
+
+genfstab -U /mnt >> /mnt/etc/fstab
+cat /mnt/etc/fstab
+
+arch-chroot /mnt
+-----------------------------------------------------------------------------------
+fallocate -l 4GB /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+
+edit /etc/fstab
+
+add line
+	/swapfile none swap defaults 0 0
+
+timedatectl list-timezones | grep Mexico_City
+ln -sf /usr/share/zoneinfo/America/Mexico_City /etc/localtime
+hwclock --systohc
+
+edit /etc/locale.gen
+
+uncoment line
+	en_US.UTF-8 UTF-8
+	es_MX.UTF-8 UTF-8
+
+locale-gen
+echo LANG=es_MX.UTF-8 >> /etc/locale.conf
+echo KEYMAP=la-latin1 >> /etc/vconsole.conf
+echo (hostname) >>/etc/hostname
+
+edit /etc/hosts
+add line
+	127.0.0.1	localhost
+	::1		localhost
+	127.0.1.1	hostname.localdomain	hostname
+
+passwd
+	newpass
+	verify
+
+pacman -S grub efibootmgr networkmanager dhcpcd base-devel linux-zen-headers git xdg-utils xdg-user-dirs
+
+edit /etc/mkinitcpio.conf
+edit line
+HOOKS=(base udev autodetect keyboard keymap consolefont modconf block encrypt filesystems fsck)
+
+mkinitcpio -p linux-zen
+
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+blkid
+	buscar el UUID de la particion fisica donde esta luks
+
+edit /etc/default/grub
+edit line
+	GRUB_CMDLINE_LINUX="cryptdevice=UUID=EscribirUUID:cryptroot root=/dev/mapper/cryptroot"
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+systemctl enable NetworkManager
+
+useradd -mG wheel username
+passwd username
+	newpass
+	verify
+EDITOR=editor visudo
+uncoment line
+%wheel ALL=(ALL) ALL #esta debajo de la line no comentada root ALL=(ALL) ALL
+
+exit
+-----------------------------------------------------------------------------------------------
+umount -a
+reboot
+finish
+
+
+
+	
