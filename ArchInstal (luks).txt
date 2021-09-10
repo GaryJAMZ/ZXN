@@ -1,5 +1,5 @@
 pacman -Sy reflector
-reflector -c Mexico -a 6 --sort rate --save /etc/pacman.d/mirrirlist
+reflector -c US -a 6 --sort rate --save /etc/pacman.d/mirrirlist
 lsblk
 gdisk /dev/sda
 	n
@@ -23,13 +23,13 @@ cryptsetup -y -v luksFormat /dev/sda2
 	passphrase
 	verify
 
-cryptsetup open /dev/sda2 cryptroot
+cryptsetup open /dev/sda2 nameofcrypto
 	passphrase
 
-mkfs.ext4 /dev/mapper/cryptroot
+mkfs.ext4 /dev/mapper/nameofcrypto
 mkfs.fat -F32 /dev/sda1
 lsblk
-mount /dev/mapper/cryptroot /mnt
+mount /dev/mapper/nameofcrypto /mnt
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 lsblk
@@ -93,7 +93,7 @@ blkid
 
 edit /etc/default/grub
 edit line
-	GRUB_CMDLINE_LINUX="cryptdevice=UUID=EscribirUUID:cryptroot root=/dev/mapper/cryptroot"
+	GRUB_CMDLINE_LINUX="cryptdevice=UUID=EscribirUUID:nameofcrypto root=/dev/mapper/nameofcrypto"
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
