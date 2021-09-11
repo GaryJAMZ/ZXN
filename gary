@@ -7,10 +7,10 @@
 	nani?
 '
 
-if [[ -f $(pwd)/nani ]]; then
-	source nani
+if [[ -f $(pwd)/sharedfuncs ]]; then
+	source sharedfuncs
 else
-	echo "missing file: nani"
+	echo "missing file: sharedfuncs"
 	exit 1
 fi
 
@@ -18,7 +18,7 @@ fi
 #WELCOME {{{
 welcome() {
 	clear
-	echo -e "${Bold}que miras ese, aqui no hay nada${White}"
+	echo -e "${Bold}Welcome to the Archlinux U Install script by helmuthdu${White}"
 	print_line
 	echo "Requirements:"
 	echo "-> Archlinux installation"
@@ -26,6 +26,8 @@ welcome() {
 	echo "-> Working internet connection"
 	print_line
 	echo "Script can be cancelled at any time with CTRL+C"
+	print_line
+	echo "http://www.github.com/helmuthdu/aui"
 	print_line
 	echo -e "\nBackups:"
 	print_line
@@ -167,19 +169,27 @@ select_user() {
 	configure_user_account() {
 		#BASHRC {{{
 		print_title "BASHRC - https://wiki.archlinux.org/index.php/Bashrc"
-		bashrc_list=("Vanilla .bashrc" "Get personal .bashrc from github")
+		bashrc_list=("Get helmuthdu .bashrc from github" "Vanilla .bashrc" "Get personal .bashrc from github")
 		PS3="$prompt1"
 		echo -e "Choose your .bashrc\n"
 		select OPT in "${bashrc_list[@]}"; do
 			case "$REPLY" in
 			1)
-				cp /etc/skel/.bashrc /home/"${username}"
+				package_install "git"
+				package_install "colordiff"
+				git clone https://github.com/helmuthdu/dotfiles
+				cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc ~/
+				cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc /home/"${username}"/
+				rm -fr dotfiles
 				;;
 			2)
+				cp /etc/skel/.bashrc /home/"${username}"
+				;;
+			3)
 				package_install "git"
-				printf "%s" "Enter your github username [ex: ZeXmily]: "
+				printf "%s" "Enter your github username [ex: helmuthdu]: "
 				read -r GITHUB_USER
-				printf "%s" "Enter your github repository [ex: ZXN]: "
+				printf "%s" "Enter your github repository [ex: aui]: "
 				read -r GITHUB_REPO
 				git clone https://github.com/"$GITHUB_USER"/"$GITHUB_REPO"
 				cp -R "$GITHUB_REPO"/.* /home/"${username}"/
@@ -202,6 +212,46 @@ select_user() {
 				if [[ $EDITOR == vim || $EDITOR == neovim ]]; then
 					[[ $EDITOR == vim ]] && (! is_package_installed "gvim" && package_install "vim ctags") || package_install "neovim python2-neovim python-neovim xclip"
 					#VIMRC {{{
+					if [[ ! -f /home/${username}/.vimrc ]]; then
+						vimrc_list=("Get helmuthdu .vimrc from github" "Vanilla .vimrc" "Get personal .vimrc from github")
+						PS3="$prompt1"
+						echo -e "Choose your .vimrc\n"
+						select OPT in "${vimrc_list[@]}"; do
+							case "$REPLY" in
+							1)
+								package_install "git"
+								git clone https://github.com/helmuthdu/vim /home/"${username}"/.vim
+								ln -sf /home/"${username}"/.vim/vimrc /home/"${username}"/.vimrc
+								cp -R vim /home/"${username}"/.vim/fonts /home/"${username}"/.fonts
+								mkdir /home/"${username}"/.vim/colors
+								curl -fsSL -o /home/"${username}"/.vim/colors/tender.vim https://raw.githubusercontent.com/jacoborus/tender.vim/master/colors/tender.vim
+								GRUVBOX_NEEDED=1
+								;;
+							3)
+								package_install "git"
+								printf "%s" "Enter your github username [ex: helmuthdu]: "
+								read -r GITHUB_USER
+								printf "%s" "Enter your github repository [ex: vim]: "
+								read -r GITHUB_REPO
+								git clone https://github.com/"$GITHUB_USER"/"$GITHUB_REPO"
+								cp -R "$GITHUB_REPO"/.vim /home/"${username}"/
+								if [[ -f $GITHUB_REPO/vimrc ]]; then
+									ln -sf /home/"${username}"/.vim/vimrc /home/"${username}"/.vimrc
+								else
+									ln -sf /home/"${username}"/.vim/.vimrc /home/"${username}"/.vimrc
+								fi
+								rm -fr "$GITHUB_REPO"
+								;;
+							2)
+								echo "Nothing to do..."
+								;;
+							*)
+								invalid_option
+								;;
+							esac
+							[[ -n $OPT ]] && break
+						done
+					fi
 					if [[ $EDITOR == neovim && ! -f /home/${username}/.config/nvim ]]; then
 						mkdir ~/.config
 						ln -s ~/.vim ~/.config/nvim
@@ -227,9 +277,9 @@ select_user() {
 								;;
 							3)
 								package_install "git"
-								printf "%s" "Enter your github username [ex: ZeXmily]: "
+								printf "%s" "Enter your github username [ex: helmuthdu]: "
 								read -r GITHUB_USER
-								printf "%s" "Enter your github repository [ex: ZXN]: "
+								printf "%s" "Enter your github repository [ex: vim]: "
 								read -r GITHUB_REPO
 								git clone https://github.com/"$GITHUB_USER"/"$GITHUB_REPO" /home/"${username}"/.emacs.d
 								;;
@@ -412,9 +462,9 @@ automatic_mode() {
 	print_danger "\tUse this mode only if you already know all the option.\n\tYou won't be able to select anything later."
 	read_input_text "Enable Automatic Mode"
 	if [[ $OPTION == y ]]; then
-		$EDITOR "${AUI_DIR}"/gary.automode
-		# shellcheck source=/root/ZXN/gary.automode
-		source "${AUI_DIR}"/gary.automode
+		$EDITOR "${AUI_DIR}"/lilo.automode
+		# shellcheck source=/root/aui/lilo.automode
+		source "${AUI_DIR}"/lilo.automode
 		echo -e "The installation will start now."
 		pause_function
 		AUTOMATIC_MODE=1
@@ -898,7 +948,7 @@ install_additional_firmwares() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 			create_ramdisk_environment
 		done
 	fi
@@ -964,7 +1014,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 	}                     #}}}
 	install_gtk_theme() { #{{{
@@ -1025,7 +1075,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 	}                           #}}}
 	install_display_manager() { #{{{
@@ -1090,7 +1140,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 	}                  #}}}
 	install_themes() { #{{{
@@ -1121,7 +1171,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 	}                     #}}}
 	install_misc_apps() { #{{{
@@ -1195,7 +1245,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 	} #}}}
 
@@ -1337,7 +1387,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 		#}}}
 		system_ctl enable sddm
@@ -1552,7 +1602,7 @@ install_desktop_environment() {
 					;;
 				esac
 			done
-			source nandato
+			source sharedfuncs_elihw
 		done
 		;;
 		#}}}
@@ -1765,7 +1815,7 @@ install_accessories_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -1908,7 +1958,7 @@ install_development_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -1989,7 +2039,7 @@ install_office_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -2110,7 +2160,7 @@ install_system_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -2181,7 +2231,7 @@ install_graphics_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -2257,7 +2307,7 @@ install_internet_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=1
@@ -2357,7 +2407,7 @@ install_internet_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=2
@@ -2390,7 +2440,7 @@ install_internet_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=3
@@ -2474,7 +2524,7 @@ install_internet_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=4
@@ -2506,7 +2556,7 @@ install_internet_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=5
@@ -2542,7 +2592,7 @@ install_internet_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=6
@@ -2555,7 +2605,7 @@ install_internet_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -2641,7 +2691,7 @@ install_audio_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=1
@@ -2685,7 +2735,7 @@ install_audio_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=2
@@ -2707,7 +2757,7 @@ install_audio_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -2786,7 +2836,7 @@ install_video_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=1
@@ -2850,7 +2900,7 @@ install_video_apps() {
 							;;
 						esac
 					done
-					source nandato
+					source sharedfuncs_elihw
 				done
 				#}}}
 				OPT=2
@@ -2869,7 +2919,7 @@ install_video_apps() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -2947,7 +2997,7 @@ install_games() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -3165,7 +3215,7 @@ install_fonts() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -3208,7 +3258,7 @@ choose_ime_m17n() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -3282,7 +3332,7 @@ install_extra() {
 				;;
 			esac
 		done
-		source nandato
+		source sharedfuncs_elihw
 	done
 }
 #}}}
@@ -3295,7 +3345,7 @@ finish() {
 	pacman -Qm | awk '{print $1}' >"$AUR_PKG_LIST"
 	less "$AUR_PKG_LIST"
 	print_title "INSTALL COMPLETED"
-	echo -e "ya acabo we ya vete\n"
+	echo -e "Thanks for using the Archlinux Ultimate Install script by helmuthdu\n"
 	#REBOOT
 	printf "%s" "Reboot your system [y/N]: "
 	read -r OPTION
@@ -3322,7 +3372,7 @@ automatic_mode
 if is_package_installed "kdebase-workspace"; then KDE=1; fi
 
 while true; do
-	print_title "ARCHLINUX INSTALL - ZeXmily"
+	print_title "ARCHLINUX INSTALL - https://github.com/helmuthdu/aui"
 	print_warning "USERNAME: ${username}"
 	echo " 1) $(mainmenu_item "${checklist[1]}" "Basic Setup")"
 	echo " 2) $(mainmenu_item "${checklist[2]}" "Desktop Environment|Window Manager")"
