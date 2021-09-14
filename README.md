@@ -2,7 +2,5 @@
 Work
 
 Este es una configuracion para mi instalacion de archlinux desde cero con luks.
-
-
-dar permisos de ejecucion a gary, gary.automode y nani
-Ademas de usar un archivo de postinstalación usando como plantilla el trabajo https://github.com/helmuthdu/aui/lilo
+Trabajo en proceso para usar scripts personalizados, sin embargo mientras el archivo de postinstalacion de https://github.com/helmuthdu/aui
+del cual se usa para configurar algunas cosas despues de instalar, sin embargo pretnedo actualizar a un shellscript propio donde colocare mis herramientas a usar.
