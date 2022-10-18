@@ -1,0 +1,20 @@
+#!/bin/bash
+pacman -Sy
+parted /dev/sd$1 mklabel bsd
+dd bs=1k count=1 if=/dev/zero of=/dev/sd$1
+partprobe
+gdisk /dev/sd$1
+n
+
+
++200M
+L
+efi
+ef00
+n
+
+
+
+
+w
+lsblk
