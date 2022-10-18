@@ -3,18 +3,32 @@ pacman -Sy
 parted /dev/sd$1 mklabel bsd
 dd bs=1k count=1 if=/dev/zero of=/dev/sd$1
 partprobe
-gdisk /dev/sd$1
-n
-
-
-+200M
-L
-efi
-ef00
-n
-
-
-
-
-w
+a=$(sgdisk /dev/sd$1 -F)
+a1=${#a[@]}
+a2=${a[@]:36:$a1}
+sgdisk /dev/sd$1 -n 1:$a2:200M
+sgdisk /dev/sd$1 -t 1:ef00
+b=$(sgdisk /dev/sd$1 -F)
+c=$(sgdisk /dev/sd$1 -E)
+sgdisk /dev/sd$1 -n 2:$b:$c
 lsblk
+echo "Configurar el cifrado y colocar contraseña"
+cryptsetup -y -v luksFormat /dev/sd$12
+cryptsetup open /dev/sd$12 $2
+mkfs.ext4 /dev/mapper/$2
+mkfs.fat -F32 /dev/sd$11
+lsblk
+mount /dev/mapper/$2 /mnt
+mkdir /mnt/boot
+mount /dev/sd$11 /mnt/boot
+lsblk
+if ( $3 < 1)
+then
+    d="amd-ucode"
+else
+    d="intel-ucode"
+fi
+pacstrap /mnt base linux-zen linux-firmware vim neovim $d
+genfstab -U /mnt >> /mnt/etc/fstab
+chmod +x installarch2
+mv installarch2 /mnt/
