@@ -19,13 +19,7 @@ mkfs.fat -F32 /dev/sd$11
 mount /dev/mapper/$2 /mnt
 mkdir /mnt/boot
 mount /dev/sd$11 /mnt/boot
-if ([$3 < 1])
-then
-	d="amd-ucode"
-else
-	d="intel-ucode"
-fi
-pacstrap /mnt base linux-zen linux-firmware vim neovim $d
+pacstrap /mnt base linux-zen linux-firmware vim neovim $3
 genfstab -U /mnt >> /mnt/etc/fstab
 chmod +x install2 install3
 mv install2 /mnt

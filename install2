@@ -31,5 +31,4 @@ useradd -mG wheel $4
 echo "colocar contraseña para nuevo usuario"
 passwd $4
 sed -i '85s/# //g' /etc/sudoers
-mv install3 /home/$4/
-exit
+mv install3 /home/$4/ && exit
