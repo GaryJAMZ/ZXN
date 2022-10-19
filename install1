@@ -31,3 +31,5 @@ chmod +x install2 install3
 mv install2 /mnt
 mv install3 /mnt
 arch-chroot /mnt
+umount -a
+reboot

@@ -1,0 +1,24 @@
+#!/bin/bash
+mkdir -p ~/Desktop/$1/repos
+cd !$
+git clone https://aur.archlinux.org/paru-bin.git
+cd paru-bin
+makepkg -si
+sudo pacman -Sy --needed --noconfirm linux-firmware-qlogic alsa-firmware broadcom-wl-dkms libffado libmtp android-udev libraw1394
+paru -S --needed wd719x-firmware upd72020x-fw aic94xx-firmware b43-firmware bluez-firmware
+sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid jq inotify-tools xclip flameshot brightnessctl nemo kitty
+paru -S --needed todo-bin
+sudo pacman -S --noconfirm gstreamer gst-plugins-bad gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-ugly xine-lib libdvdcss libdvdread dvd+rw-tools vlc lame
+cd ..
+mkdir blackarch
+cd blackarch
+curl -O https://blackarch.org/strap.sh
+chmod +x strap.sh
+sudo ./strap.sh
+sudo pacman -Sy --noconfirm dnsmasq networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc
+sudo pacman -S --noconfirm xorg plasma sddm sddm-kcm latte-dock
+sudo pacman -S --noconfirm firewalld gparted htop clamav gimp openssh wget
+paru -S kvantum pamac-aur
+systemctl enable sddm.service
+systemctl enable NetworkManager.service
+reboot
