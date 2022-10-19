@@ -6,15 +6,15 @@ swapon /swapfile
 echo "/swapfile none swap defaults 0 0" >> /etc/fstab
 ln -sf /usr/share/zoneinfo/America/Mexico_City /etc/localtime
 hwclock --systohc
-sed -i '/en_US.UTF-8*/s/^#//g' /etc/local.gen
-sed -i '/es_MX.UTF-8*/s/^#//g' /etc/local.gen
+sed -i '/en_US.UTF-8*/s/^#//g' /etc/locale.gen
+sed -i '/es_MX.UTF-8*/s/^#//g' /etc/locale.gen
 locale-gen
 echo LAN=es_MX.UTF-8 >> /etc/locale.conf
 echo KEYMAP=la-latin1 >> /etc/vconsole.conf
 echo $1 >> /etc/hostname
 echo -e '127.0.0.1\tlocalhost' >> /etc/hosts
 echo -e '::1\t\tlocalhost' >> /etc/hosts
-echo -e '127.0.1.1\t$1.localdomain\t$1'
+echo -e '127.0.1.1\t$1.localdomain\t$1' >> /etc/hosts
 echo "Cambiar contraseña y verificarla"
 passwd
 pacman -Sy grub efibootmgr networkmanager dhcpcd base-devel linux-zen-headers git xdg-utils xdg-user-dirs
