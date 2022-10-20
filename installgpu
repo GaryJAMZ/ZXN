@@ -21,7 +21,8 @@ check_vga() { #{{{
 	local _vga=$(lspci | grep VGA | tr "[:upper:]" "[:lower:]")
 	local _vga_length=$(lspci | grep VGA | wc -l)
 
-	if [[ -n $(dmidecode --type 1 | grep VirtualBox ]]; then
+	if [[ -n $(dmidecode --type 1 | grep VirtualBox) ]]; then
+		VIDEO_DRIVER="virtualbox"
 	elif [[ -n $(dmidecode --type 1 | grep VMware) ]]; then
 		VIDEO_DRIVER="vmware"
 	elif [[ $_vga_length -eq 2 ]] && [[ -n $(echo "${_vga}" | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
