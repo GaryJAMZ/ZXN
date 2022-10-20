@@ -92,6 +92,7 @@ aur_package_install() { #{{{
 			su - "${username}" -c "${AUR_PKG_MANAGER} --noconfirm -S ${PKG}"
 		else
 			if [[ $VERBOSE_MODE -eq 0 ]]; then
+				echo bonito
 			else
 				echo -e "Warning: ${PKG} is up to date --skipping"
 			fi
