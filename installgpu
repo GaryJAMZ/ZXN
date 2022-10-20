@@ -1,0 +1,221 @@
+#!/bin/bash
+is_package_installed() { #{{{
+	for PKG in $1; do
+		pacman -Q "$PKG" &>/dev/null && return 0
+	done
+	return 1
+}
+package_install() { #{{{
+	pacman -S --needed "${1}"
+}
+read_input_text() { #{{{
+	printf "%s" "$1 [y/N]: "
+	read -r OPTION
+	echo ""
+	OPTION=$(echo "$OPTION" | tr '[:upper:]' '[:lower:]')
+}
+create_ramdisk_enviroment() {
+	mkinitcpio -p linux-zen
+}
+check_vga() { #{{{
+	local _vga=$(lspci | grep VGA | tr "[:upper:]" "[:lower:]")
+	local _vga_length=$(lspci | grep VGA | wc -l)
+
+	if [[ -n $(dmidecode --type 1 | grep VirtualBox ]]; then
+	elif [[ -n $(dmidecode --type 1 | grep VMware) ]]; then
+		VIDEO_DRIVER="vmware"
+	elif [[ $_vga_length -eq 2 ]] && [[ -n $(echo "${_vga}" | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
+		VIDEO_DRIVER="optimus"
+	elif [[ -n $(echo "${_vga}" | grep "nvidia") || -f /sys/kernel/debug/dri/0/vbios.rom ]]; then
+		read_input_text "Install NVIDIA proprietary driver" "$BETTER_VIDEO_DRIVER"
+		if [[ $OPTION == y ]]; then
+			VIDEO_DRIVER="nvidia"
+		else
+			VIDEO_DRIVER="nouveau"
+		fi
+	elif [[ -n $(echo "${_vga}" | grep "advanced micro devices") || -f /sys/kernel/debug/dri/0/radeon_pm_info || -f /sys/kernel/debug/dri/0/radeon_sa_info ]]; then
+		read_input_text "Install AMDGPU driver" "$BETTER_VIDEO_DRIVER"
+		if [[ $OPTION == y ]]; then
+			VIDEO_DRIVER="amdgpu"
+		else
+			VIDEO_DRIVER="ati"
+		fi
+	elif [[ -n $(echo "${_vga}" | grep "intel corporation") || -f /sys/kernel/debug/dri/0/i915_capabilities ]]; then
+		VIDEO_DRIVER="intel"
+	else
+		VIDEO_DRIVER="vesa"
+	fi
+	OPTION="y"
+	[[ $VIDEO_DRIVER == intel || $VIDEO_DRIVER == vesa ]] && read -p "Confirm video driver: $VIDEO_DRIVER [Y/n]" OPTION
+	if [[ $OPTION == n ]]; then
+		printf "%s" "Type your video driver [ex: sis, fbdev, modesetting]: "
+		read -r VIDEO_DRIVER
+	fi
+}
+start_module() { #{{{
+	modprobe "$1"
+}
+add_module() { #{{{
+	for module in $1; do
+		[[ $# -lt 2 ]] && local _module_name="$module" || local _module_name="$2"
+		local _has_module=$(grep "$module" /etc/modules-load.d/"${_module_name}".conf 2>&1)
+		[[ -z $_has_module ]] && echo "$module" >>/etc/modules-load.d/"${_module_name}".conf
+		start_module "$module"
+	done
+}
+add_user_to_group() { #{{{
+	local _user=${1}
+	local _group=${2}
+
+	if [[ -z ${_group} ]]; then
+		error_msg "ERROR! 'add_user_to_group' was not given enough parameters."
+	fi
+
+	groupadd "${_group}" >>"$LOG" 2>&1 &
+	gpasswd -a "${_user}" "${_group}" >>"$LOG" 2>&1 &
+	pid=$!
+	progress $pid
+}
+system_ctl() { #{{{
+	local _action=${1}
+	local _object=${2}
+	systemctl "${_action}" "${_object}" >>"$LOG" 2>&1
+	pid=$!
+	progress $pid
+}
+AUR_PKG_MANAGER="paru"
+aur_package_install() { #{{{
+	su - "${username}" -c "sudo -v"
+	for PKG in $1; do
+		if ! is_package_installed "${PKG}"; then
+			su - "${username}" -c "${AUR_PKG_MANAGER} --noconfirm -S ${PKG}"
+		else
+			if [[ $VERBOSE_MODE -eq 0 ]]; then
+			else
+				echo -e "Warning: ${PKG} is up to date --skipping"
+			fi
+		fi
+	done
+}
+ARCHI=$(uname -m)
+replace_line() { #{{{
+	local _search=${1}
+	local _replace=${2}
+	local _filepath=${3}
+	local _filebase=$(basename "${3}")
+
+	sed -e "s/${_search}/${_replace}/" "${_filepath}" >/tmp/"${_filebase}" 2>"$LOG"
+	if [[ ${?} -eq 0 ]]; then
+		mv /tmp/"${_filebase}" "${_filepath}"
+	else
+		echo failed
+	fi
+}
+add_line() { #{{{
+	local _add_line=${1}
+	local _filepath=${2}
+
+	local _has_line=$(grep -ci "${_add_line}" "${_filepath}" 2>&1)
+	[[ $_has_line -eq 0 ]] && echo "${_add_line}" >>"${_filepath}"
+}
+pause_function() { #{{{
+	print_line
+	read -e -sn 1 -p "Press enter to continue..."
+}
+print_line() { #{{{
+	printf "%$(tput cols)s\n" | tr ' ' '-'
+}               #}}}
+install_video_cards() {
+	package_install "dmidecode"
+	check_vga
+	if [[ ${VIDEO_DRIVER} == virtualbox ]]; then
+		if [ "$(lspci | grep 'VMware SVGA' -c)" -gt "0" ]; then
+			package_install "xf86-video-vmware"
+		fi
+		if [ "$(ls /boot | grep hardened -c)" -gt "0" ] || [ "$(ls /boot | grep lts -c)" -gt "0" ] || [ "$(ls /boot | grep zen -c)" -gt "0" ]; then
+			package_install "virtualbox-guest-utils mesa-libgl"
+		else
+			package_install "virtualbox-guest-utils mesa-libgl"
+		fi
+		add_module "vboxguest vboxsf vboxvideo" "virtualbox-guest"
+		add_user_to_group "${username}" vboxsf
+		system_ctl enable vboxservice
+		create_ramdisk_environment
+	elif [[ ${VIDEO_DRIVER} == vmware ]]; then
+		package_install "xf86-video-vmware xf86-input-vmmouse"
+		if [ "$(ls /boot | grep hardened -c)" -gt "0" ] || [ "$(ls /boot | grep lts -c)" -gt "0" ] || [ "$(ls /boot | grep zen -c)" -gt "0" ]; then
+			aur_package_install "open-vm-tools-dkms"
+		else
+			package_install "open-vm-tools"
+		fi
+		cat /proc/version >/etc/arch-release
+		system_ctl enable vmtoolsd
+		create_ramdisk_environment
+	elif [[ ${VIDEO_DRIVER} == optimus ]]; then
+		XF86_DRIVERS=$(pacman -Qe | grep xf86-video | awk '{print $1}')
+		[[ -n $XF86_DRIVERS ]] && pacman -Rcsn "$XF86_DRIVERS"
+		read_input_text "Use NVIDIA PRIME Render Offload instead of Bumblebee?" "$BUMBLEBEE"
+		if [[ $OPTION == y ]]; then
+			package_install "nvidia nvidia-utils libglvnd nvidia-prime"
+			package_install "mesa mesa-libgl libvdpau-va-gl"
+			[[ ${ARCHI} == x86_64 ]] && pacman -S --needed lib32-virtualgl lib32-nvidia-utils
+			replace_line '*options nouveau modeset=1' '#options nouveau modeset=1' /etc/modprobe.d/modprobe.conf
+			replace_line '*MODULES="nouveau"' '#MODULES="nouveau"' /etc/mkinitcpio.conf
+			create_ramdisk_environment
+		else
+			pacman -S --needed xf86-video-intel bumblebee nvidia
+			[[ ${ARCHI} == x86_64 ]] && pacman -S --needed lib32-virtualgl lib32-nvidia-utils
+			replace_line '*options nouveau modeset=1' '#options nouveau modeset=1' /etc/modprobe.d/modprobe.conf
+			replace_line '*MODULES="nouveau"' '#MODULES="nouveau"' /etc/mkinitcpio.conf
+			create_ramdisk_environment
+			add_user_to_group "${username}" bumblebee
+		fi
+	elif [[ ${VIDEO_DRIVER} == nvidia ]]; then
+		XF86_DRIVERS=$(pacman -Qe | grep xf86-video | awk '{print $1}')
+		[[ -n $XF86_DRIVERS ]] && pacman -Rcsn "$XF86_DRIVERS"
+		if [ "$(ls /boot | grep hardened -c)" -gt "0" ] || [ "$(ls /boot | grep lts -c)" -gt "0" ] || [ "$(ls /boot | grep zen -c)" -gt "0" ]; then
+			package_install "nvidia-dkms nvidia-utils libglvnd"
+			echo "Do not forget to make a mkinitcpio every time you updated the nvidia driver!"
+		else
+			package_install "nvidia nvidia-utils libglvnd"
+		fi
+		[[ ${ARCHI} == x86_64 ]] && pacman -S --needed lib32-nvidia-utils
+		replace_line '*options nouveau modeset=1' '#options nouveau modeset=1' /etc/modprobe.d/modprobe.conf
+		replace_line '*MODULES="nouveau"' '#MODULES="nouveau"' /etc/mkinitcpio.conf
+		create_ramdisk_environment
+		nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf
+	elif [[ ${VIDEO_DRIVER} == nouveau ]]; then
+		is_package_installed "nvidia" && pacman -Rdds --noconfirm nvidia{,-utils}
+		[[ ${ARCHI} == x86_64 ]] && is_package_installed "lib32-nvidia-utils" && pacman -Rdds --noconfirm lib32-nvidia-utils
+		[[ -f /etc/X11/xorg.conf.d/20-nvidia.conf ]] && rm /etc/X11/xorg.conf.d/20-nvidia.conf
+		package_install "xf86-video-${VIDEO_DRIVER} mesa-libgl libvdpau-va-gl"
+		replace_line '#*options nouveau modeset=1' 'options nouveau modeset=1' /etc/modprobe.d/modprobe.conf
+		replace_line '#*MODULES="nouveau"' 'MODULES="nouveau"' /etc/mkinitcpio.conf
+		create_ramdisk_environment
+	elif [[ ${VIDEO_DRIVER} == ati ]]; then
+		[[ -f /etc/X11/xorg.conf.d/20-radeon.conf ]] && rm /etc/X11/xorg.conf.d/20-radeon.conf
+		[[ -f /etc/X11/xorg.conf ]] && rm /etc/X11/xorg.conf
+		package_install "xf86-video-${VIDEO_DRIVER} mesa-libgl mesa-vdpau libvdpau-va-gl"
+		add_module "radeon" "ati"
+		create_ramdisk_environment
+	elif [[ ${VIDEO_DRIVER} == amdgpu ]]; then
+		[[ -f /etc/X11/xorg.conf.d/20-radeon.conf ]] && rm /etc/X11/xorg.conf.d/20-radeon.conf
+		[[ -f /etc/X11/xorg.conf ]] && rm /etc/X11/xorg.conf
+		package_install "xf86-video-${VIDEO_DRIVER} vulkan-radeon mesa-libgl mesa-vdpau libvdpau-va-gl"
+		add_module "amdgpu radeon" "ati"
+		create_ramdisk_environment
+	elif [[ ${VIDEO_DRIVER} == intel ]]; then
+		package_install "xf86-video-${VIDEO_DRIVER} mesa-libgl libvdpau-va-gl"
+	else
+		package_install "xf86-video-${VIDEO_DRIVER} mesa-libgl libvdpau-va-gl"
+	fi
+	if [[ ${ARCHI} == x86_64 ]]; then
+		is_package_installed "mesa-libgl" && package_install "lib32-mesa-libgl"
+		is_package_installed "mesa-vdpau" && package_install "lib32-mesa-vdpau"
+	fi
+	if is_package_installed "libvdpau-va-gl"; then
+		add_line "export VDPAU_DRIVER=va_gl" "/etc/profile"
+	fi
+	pause_function
+}
+install_video_cards
