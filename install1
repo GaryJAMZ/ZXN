@@ -21,7 +21,7 @@ mkdir /mnt/boot
 mount /dev/sd$11 /mnt/boot
 pacstrap /mnt base linux-zen linux-firmware vim neovim $3
 genfstab -U /mnt >> /mnt/etc/fstab
-chmod +x install2 install3
+chmod +x install2 install3 install4 installgpu installrootcfg sharedfuncs
 mv install2 /mnt
 mv install3 /mnt
 mv install4 /mnt
