@@ -1,6 +1,6 @@
 #!/bin/bash
-mkdir -p ~/Desktop/repos
-cd !$
+mkdir -p ~/Desktop/$1/repos
+cd ~/Desktop/$1/repos
 git clone https://aur.archlinux.org/paru-bin.git
 cd paru-bin
 makepkg -si
