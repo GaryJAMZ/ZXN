@@ -1,5 +1,5 @@
 #!/bin/bash
-mkdir -p ~/Desktop/$1/repos
+mkdir -p ~/Desktop/repos
 cd !$
 git clone https://aur.archlinux.org/paru-bin.git
 cd paru-bin
