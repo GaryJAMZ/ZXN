@@ -40,4 +40,5 @@ mv installrootcfg /root
 mv Hack.zip /home/$4/
 mv .zshrc /home/$4/
 mv .p10k.zsh /home/$4/
+mv sharedfuncs /home/$4/
 mv install3 /home/$4/ && exit
