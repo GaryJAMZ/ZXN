@@ -18,8 +18,9 @@ install2
 salir y reiniciar
 
 despues proceder con 
-chmod +x install gpu y sharedfuncs
+
 installgpu
+la instalacion de los driver de gpu se uso parte del codigo del scrip de helmuthdu asi como sus funciones compartidas para este unico scrip
 
 posterior 
 install3
