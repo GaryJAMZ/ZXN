@@ -31,4 +31,7 @@ useradd -mG wheel $4
 echo "colocar contraseña para nuevo usuario"
 passwd $4
 sed -i '85s/# //g' /etc/sudoers
+mv install4 /home/$4/
+mv installgpu /home/$4/
+mv icomoon.zip /home/$4/
 mv install3 /home/$4/ && exit
