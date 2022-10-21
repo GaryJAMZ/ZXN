@@ -27,6 +27,12 @@ mv install3 /mnt
 mv install4 /mnt
 mv installgpu /mnt
 mv icomoon.zip /mnt
+mv iosevka.zip /mnt
+mv kitty.conf /mnt
+mv installrootcfg /mnt
+mv Hack.zip /mnt
+mv .zshrc /mnt
+mv .p10k.zsh /mnt
 arch-chroot /mnt
 umount -a
 reboot
