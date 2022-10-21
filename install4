@@ -1,0 +1,66 @@
+#!/bin/bash
+cd /usr/share/fonts
+sudo pacman -S p7zip unzip zip
+sudo mv /home/$1/iosevka.zip .
+sudo unzip iosevka.zip
+sudo mv icomoon/*.ttf .
+sudo rm-rf icomoon
+
+paru -S nerd-fonts-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
+
+cd
+sudo sed -i '93s/^#//g' /etc/pacman.conf
+sudo sed -i '94s/^#//g' /etc/pacman.conf
+
+sudo pacman -Sy
+sudo pacman -Sl multilib
+
+sudo pacman -S steam
+paru -S spotify microsoft-edge-stable-bin
+
+sudo pacman -S zsh
+sudo usermod --shell /usr/bin/zsh $1
+
+paru -S zsh-syntac-highlighting zsh-autosuggestions
+sudo pacman -S locate
+sudo updatedb
+
+cd /usr/share
+sudo mkdir zsh-sudo
+sudo chown $1:$1 zsh-sudo/
+cd !$
+wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
+cd
+
+sudo pacman -S lsd bat
+
+paru -S scrub
+
+cd /usr/share/fonts
+sudo mv /home/$1/Hack.zip .
+sudo unzip Hack.zip
+sudo rm Hack.zip
+cd
+
+mv kitty.conf ~/.config/kitty/
+cd ~/.config/kitty/
+
+wget https://raw.githubusercontent.com/rxyhn/bspdots/main/config/kitty/color.ini
+cd
+
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
+git clone https://github.com/NvChad/Nvchad ~/.config/nvim --depth 1 && nvim
+
+sudo pacman -S mdcat
+
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+
+sudo cp ~/.zshrc /root/
+sudo ln -s -f /home/$1/.zshrc /root/.zshrc
+sudo usermod --shell /usr/bin/zsh root
+
+sudo cp ~/.p10k.zsh /root/
+
+exit
