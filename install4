@@ -3,8 +3,12 @@ cd /usr/share/fonts
 sudo pacman -S p7zip unzip zip
 sudo mv /home/$1/iosevka.zip .
 sudo unzip iosevka.zip
+sudo rm iosevka.zip
+
+sudo mv /home/$1/icomoon.zip .
+sudo unzip icomoon.zip
 sudo mv icomoon/*.ttf .
-sudo rm-rf icomoon
+sudo rm -rf icomoon
 
 paru -S nerd-fonts-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
 
