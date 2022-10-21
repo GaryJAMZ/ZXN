@@ -32,7 +32,7 @@ sudo updatedb
 cd /usr/share
 sudo mkdir zsh-sudo
 sudo chown $1:$1 zsh-sudo/
-cd !$
+cd zsh-sudo
 wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
 cd
 
