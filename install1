@@ -33,6 +33,7 @@ mv installrootcfg /mnt
 mv Hack.zip /mnt
 mv .zshrc /mnt
 mv .p10k.zsh /mnt
+mv sharedfuncs /mnt
 arch-chroot /mnt
 umount -a
 reboot
