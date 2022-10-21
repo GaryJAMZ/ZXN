@@ -24,6 +24,9 @@ genfstab -U /mnt >> /mnt/etc/fstab
 chmod +x install2 install3
 mv install2 /mnt
 mv install3 /mnt
+mv install4 /mnt
+mv installgpu /mnt
+mv icomoon.zip /mnt
 arch-chroot /mnt
 umount -a
 reboot
