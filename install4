@@ -25,7 +25,7 @@ paru -S spotify microsoft-edge-stable-bin
 sudo pacman -S zsh
 sudo usermod --shell /usr/bin/zsh $1
 
-paru -S zsh-syntac-highlighting zsh-autosuggestions
+paru -S zsh-syntax-highlighting zsh-autosuggestions
 sudo pacman -S locate
 sudo updatedb
 
