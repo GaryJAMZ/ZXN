@@ -32,3 +32,5 @@ install4
 #parametro nombre de usuario
 y en root 
 installrootcfg
+
+NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT
