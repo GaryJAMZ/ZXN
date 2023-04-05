@@ -19,6 +19,6 @@ sudo pacman -Sy --noconfirm dnsmasq networkmanager-openconnect networkmanager-op
 sudo pacman -S --noconfirm xorg plasma sddm sddm-kcm latte-dock
 sudo pacman -S --noconfirm firewalld gparted htop clamav gimp openssh wget
 paru -S kvantum pamac-aur
-systemctl enable sddm.service
-systemctl enable NetworkManager.service
+sudo systemctl enable sddm.service
+sudo systemctl enable NetworkManager.service
 reboot
