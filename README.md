@@ -34,3 +34,5 @@ y en root
 installrootcfg
 
 NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT
+
+https://maslinux.wordpress.com/2018/07/02/como-eliminar-todo-excepto-el-sistema-base-en-arch-linux/
