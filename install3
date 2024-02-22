@@ -16,8 +16,8 @@ curl -O https://blackarch.org/strap.sh
 chmod +x strap.sh
 sudo ./strap.sh
 sudo pacman -Sy --noconfirm dnsmasq networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc
-sudo pacman -S --noconfirm xorg plasma sddm sddm-kcm latte-dock
-sudo pacman -S --noconfirm firewalld gparted htop clamav gimp openssh wget
+sudo pacman -Sy --noconfirm xorg plasma sddm sddm-kcm latte-dock
+sudo pacman -Sy --noconfirm firewalld gparted htop clamav gimp openssh wget
 paru -S kvantum pamac-aur
 sudo systemctl enable sddm.service
 sudo systemctl enable NetworkManager.service
