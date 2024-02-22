@@ -36,4 +36,3 @@ mv color.ini /mnt
 mv .p10k.zsh /mnt
 mv sharedfuncs /mnt
 arch-chroot /mnt
-umount -a
