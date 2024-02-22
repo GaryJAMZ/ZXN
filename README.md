@@ -3,6 +3,8 @@ Work
 
 Este repositorio esta destinado a guardar mi configuracion de instalacion de Archlinux segun mis requerimientos.
 
+Nota: archivo installblack es experimental pero no afecta en nada si esta aqui ya que no se utiliza nunca por ningun script listado a continuación.
+
 orden de ejcutcion
 
 install1
