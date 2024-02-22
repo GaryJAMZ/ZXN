@@ -123,7 +123,7 @@ install_video_cards() {
 	fi
 	#}}}
 	if [[ ${ARCHI} == x86_64 ]]; then
-		is_package_installed "mesa-libgl" && package_install "lib32-mesa-libgl"
+		is_package_installed "mesa-libgl" && package_install "lib32-mesa"
 		is_package_installed "mesa-vdpau" && package_install "lib32-mesa-vdpau"
 	fi
 	if is_package_installed "libvdpau-va-gl"; then
