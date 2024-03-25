@@ -7,11 +7,13 @@ Nota: archivo installblack es experimental pero no afecta en nada si esta aqui y
 
 orden de ejcutcion
 
+si se usa sd y no un nvme o algun otro tipo de unidad difernte usar installsd1 e installsd2, para unidades nvme o diferentes usar install1 e install2 agregando el nombre del disco completo no solo la letra
+
 install1
 
 #pasar 3 parametros
 
-#parametro 1 letra del disco a instalar
+#parametro 1 letra del disco a instalar o nombre completo si se usa nvme
 
 #parametro 2 nombre para el cifrado
 
@@ -23,7 +25,7 @@ install2
 
 #parametro 1 nombre del host
 
-#parametro 2 letra de unidad de almacen
+#parametro 2 letra de unidad de almacen o nombre completo si se usa nvme
 
 #parametro 3 nombre de cryptsetup usado
 
