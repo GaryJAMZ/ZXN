@@ -18,7 +18,7 @@ echo -e '127.0.1.1\t'$1'.localdomain\t'$1'' >> /etc/hosts
 echo "Cambiar contraseña y verificarla"
 passwd
 pacman -Sy grub efibootmgr networkmanager dhcpcd base-devel linux-zen-headers git xdg-utils xdg-user-dirs
-sed -i '52s/base udev autodetect modconf kms keyboard keymap consolefont block filesystems fsck/base udev autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck/g' /etc/mkinitcpio.conf
+sed -i '55s/base udev autodetect modconf kms keyboard keymap consolefont block filesystems fsck/base udev autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck/g' /etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
