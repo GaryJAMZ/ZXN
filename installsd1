@@ -21,11 +21,10 @@ mkdir /mnt/boot
 mount /dev/sd$11 /mnt/boot
 pacstrap /mnt base linux-zen linux-firmware vim neovim $3
 genfstab -U /mnt >> /mnt/etc/fstab
-chmod +x install2 install3 install4 installgpu installrootcfg sharedfuncs
+chmod +x installsd2 install3 install4 installrootcfg
 mv installsd2 /mnt
 mv install3 /mnt
 mv install4 /mnt
-mv installgpu /mnt
 mv icomoon.zip /mnt
 mv iosevka.zip /mnt
 mv kitty.conf /mnt
@@ -34,5 +33,4 @@ mv Hack.zip /mnt
 mv .zshrc /mnt
 mv color.ini /mnt
 mv .p10k.zsh /mnt
-mv sharedfuncs /mnt
 arch-chroot /mnt
