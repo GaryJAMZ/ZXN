@@ -19,8 +19,7 @@ sudo sed -i '94s/^#//g' /etc/pacman.conf
 sudo pacman -Sy
 sudo pacman -Sl multilib
 
-sudo pacman -S steam
-paru -S spotify microsoft-edge-stable-bin
+paru -S microsoft-edge-stable-bin
 
 sudo pacman -S zsh
 sudo usermod --shell /usr/bin/zsh $1
