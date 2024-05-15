@@ -35,13 +35,7 @@ salir y reiniciar
 
 Hasta aqui ya tienes un Arch linux instalado cifrado y limpio
 
-para una interfaz grafica seguir los siguientes pasos
-
-installgpu
-
-la instalacion de los driver de gpu se uso parte del codigo del scrip de helmuthdu asi como sus funciones compartidas para este unico scrip
-
-posterior 
+Para instalar la interfaz grafica deben buscarse manualmente los comandos dependiendo de la gpu.
 
 install3
 
