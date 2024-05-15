@@ -13,8 +13,8 @@ sudo rm -rf icomoon
 paru -S nerd-fonts-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
 
 cd
-sudo sed -i '93s/^#//g' /etc/pacman.conf
-sudo sed -i '94s/^#//g' /etc/pacman.conf
+sudo sed -i '90s/^#//g' /etc/pacman.conf
+sudo sed -i '91s/^#//g' /etc/pacman.conf
 
 sudo pacman -Sy
 sudo pacman -Sl multilib
