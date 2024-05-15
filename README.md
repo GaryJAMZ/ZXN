@@ -36,6 +36,7 @@ salir y reiniciar
 Hasta aqui ya tienes un Arch linux instalado cifrado y limpio
 
 Para instalar la interfaz grafica deben buscarse manualmente los comandos dependiendo de la gpu.
+una vez tengas los drivers de tu GPU puedes proceder con install3
 
 install3
 
