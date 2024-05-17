@@ -43,6 +43,7 @@ sudo mv /home/$1/Hack.zip .
 sudo unzip Hack.zip
 sudo rm Hack.zip
 cd
+mkdir ~/.config/kitty
 mv kitty.conf ~/.config/kitty/
 mv color.ini ~/.config/kitty/
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
