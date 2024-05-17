@@ -1,5 +1,4 @@
 #!/bin/bash
-mkinitcpio -p linux-zen
 mkdir -p ~/Desktop/$1/repos
 cd ~/Desktop/$1/repos
 git clone https://aur.archlinux.org/paru.git
