@@ -51,7 +51,7 @@ mv color.ini ~/.config/kitty/
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 
-git clone https://github.com/NvChad/Nvchad ~/.config/nvim --depth 1 && nvim
+git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
 
 sudo pacman -S mdcat
 
