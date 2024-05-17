@@ -4,7 +4,7 @@ cd ~/Desktop/$1/repos
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
-sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid inotify-tools xclip flameshot nemo kitty vlc lame p7zip unzip zip
+sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid inotify-tools xclip flameshot nemo kitty vlc lame p7zip unzip zip neovim
 cd ..
 mkdir blackarch
 cd blackarch
