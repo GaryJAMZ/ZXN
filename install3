@@ -4,16 +4,15 @@ cd ~/Desktop/$1/repos
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
-sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid jq inotify-tools xclip flameshot brightnessctl nemo kitty
+sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid jq inotify-tools xclip flameshot nemo kitty
 paru -S --needed latte-dock
-sudo pacman -S --noconfirm gstreamer gst-plugins-bad gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-ugly xine-lib libdvdcss libdvdread dvd+rw-tools vlc lame
+sudo pacman -S --noconfirm vlc lame
 cd ..
 mkdir blackarch
 cd blackarch
 curl -O https://blackarch.org/strap.sh
 chmod +x strap.sh
 sudo ./strap.sh
-sudo pacman -Sy --noconfirm dnsmasq networkmanager-openconnect networkmanager-openvpn networkmanager-pptp networkmanager-vpnc
 sudo pacman -Sy --noconfirm xorg plasma sddm sddm-kcm
 sudo pacman -Sy --noconfirm firewalld gparted htop clamav gimp openssh wget
 paru -S kvantum pamac-aur
