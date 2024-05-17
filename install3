@@ -1,8 +1,8 @@
 #!/bin/bash
 mkdir -p ~/Desktop/$1/repos
 cd ~/Desktop/$1/repos
-git clone https://aur.archlinux.org/paru-bin.git
-cd paru-bin
+git clone https://aur.archlinux.org/paru.git
+cd paru
 makepkg -si
 sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid jq inotify-tools xclip flameshot brightnessctl nemo kitty
 paru -S --needed todo-bin latte-dock
