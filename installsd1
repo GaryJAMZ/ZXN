@@ -19,7 +19,7 @@ mkfs.fat -F32 /dev/sd$11
 mount /dev/mapper/$2 /mnt
 mkdir /mnt/boot
 mount /dev/sd$11 /mnt/boot
-pacstrap /mnt base linux-zen linux-firmware vim neovim $3
+pacstrap /mnt base linux-zen linux-firmware vim $3
 genfstab -U /mnt >> /mnt/etc/fstab
 chmod +x installsd2 install3 installrootcfg
 mv installsd2 /mnt
