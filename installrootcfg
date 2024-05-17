@@ -1,4 +1,5 @@
 #!/bin/bash
+git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
 if ( -d "powerlevel10k")
 then
 	rm -r powerlevel10k
