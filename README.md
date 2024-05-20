@@ -30,6 +30,8 @@ una vez eso en cuenta ejecutar after
 
 #pasar parametro nombre de usuario
 
+NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT
+
 
 y reiniciar
 
@@ -37,5 +39,3 @@ finalizar la instalacion en path root como root
 
 rootinstaller
 este es opcional e innecesario solo es para isntalar nvchad y powerlvl10k para zsh del usuario root
-
-NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT
