@@ -23,7 +23,7 @@ read -p "Do you want a custom installation? (y/N): " custom_install
 
 if [[ "$custom_install" =~ (y|Y) ]]; then
   echo "Starting custom installation..."
-  unzip rec.zipVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+  unzip rec.zip
   mkdir -p ~/Desktop/$1/repos
   cd ~/Desktop/$1/repos
   git clone https://aur.archlinux.org/paru.git
