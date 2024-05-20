@@ -57,14 +57,10 @@ sudo make install
 git clone https://github.com/Luwx/LightlyShaders
 cd LightlyShaders; mkdir qt5build; cd qt5build; cmake ../ -DCMAKE_INSTALL_PREFIX=/usr -DQT5BUILD=ON && make && sudo make install && (kwin_x11 --replace &)
 sudo unzip desk.zip
-rm ~/.config/kdeglobals
 mv kdeglobals ~/.config
-sudo mv conf/color-shemes/* .local/share/color-shemes
-sudo cp -r conf/icons/candy-icons .local/share/icons/.
-sudo cp -r conf/plasma/desktoptheme/Iridiscent-round .local/share/plasma/desktoptheme/.
-sudo cp -r conf/plasma/desktoptheme/lavender-round .local/share/plasma/desktoptheme/.
-sudo cp -r conf/plasma/look-and-feel/Iridiscent-round .local/share/plasma/desktoptheme/.
-sudo cp -r conf/plasma/look-and-feel/Lavender-round .local/share/plasma/desktoptheme/.
+sudo mv conf/color-schemes .local/share/.
+sudo mv conf/icons .local/share/.
+sudo mv conf/plasma .local/share/.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
