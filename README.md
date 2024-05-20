@@ -45,12 +45,8 @@ install3
 
 y reiniciar
 
-finalizar con
+finalizar con root
 
-install4
-
-#parametro nombre de usuario
-y en root 
 installrootcfg
 
 NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT
