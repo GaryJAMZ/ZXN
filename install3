@@ -11,7 +11,7 @@ cd blackarch
 curl -O https://blackarch.org/strap.sh
 chmod +x strap.sh
 sudo ./strap.sh
-sudo pacman -Sy --noconfirm xorg plasma sddm sddm-kcm firewalld gparted htop clamav gimp openssh wget
+sudo pacman -Sy --noconfirm xorg plasma plasma-framework5 sddm sddm-kcm firewalld gparted htop clamav gimp openssh wget
 paru -S kvantum pamac-aur nerd-fonts-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons spotify microsoft-edge-stable-bin scrub
 cd /usr/share/fonts
 sudo mv /home/$1/iosevka.zip .
