@@ -61,6 +61,9 @@ mv kdeglobals ~/.config
 sudo mv conf/color-schemes .local/share/.
 sudo mv conf/icons .local/share/.
 sudo mv conf/plasma .local/share/.
+sudo mv conf/kde_settings.conf /etc/sddm.conf.d/.
+sudo mv conf/default.conf /usr/lib/sddm/sddm.conf.d/.
+sudo tar -xzvf ~/conf/Uzuri-forAll-Themes.tar.gz -C /usr/share/sddm/themes
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
