@@ -25,5 +25,7 @@ chmod +x install2 install3 installrootcfg
 mv install2 /mnt
 mv install3 /mnt
 mv rec.zip /mnt
+mv desktopwall.zip /mnt
+mv desk.zip /mnt
 mv installrootcfg /mnt
 arch-chroot /mnt
