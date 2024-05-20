@@ -100,6 +100,7 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   sudo cp ~/.p10k.zsh /root/
 else
   echo "Skipping custom installation."
+  sudo pacman -S --needed --noconfirm konsole
   sudo rm /home/$1/rec.zip
   sudo rm /home/$1/desktopwall.zip
   sudo rm /home/$1/desk.zip
