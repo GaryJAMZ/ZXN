@@ -33,6 +33,7 @@ passwd $4
 sed -i '108s/# //g' /etc/sudoers
 mv kdeglobals /home/$4
 mv desk.zip /home/$4
+mv desktopwall.zip /home/$4
 mv icomoon.zip /home/$4/
 mv iosevka.zip /home/$4/
 mv kitty.conf /home/$4/
