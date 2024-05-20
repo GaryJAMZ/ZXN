@@ -3,14 +3,19 @@ unzip rec.zip
 # Store the 5th column output in a variable
 vga_device=$(lspci | grep VGA | tr "[:upper:]" "[:lower:]" | awk '{print $5}')
 
-# Check if the variable contains "vmware" (case-insensitive)
+# Check for VMware and NVIDIA
 if [[ "$vga_device" =~ (vmware|VMware) ]]; then
   # Install mesa and xf86-video-vmware if it's a VMware device
   echo "Detected VMware VGA device. Installing mesa and xf86-video-vmware..."
   sudo pacman -Sy mesa xf86-video-vmware
+elif [[ "$vga_device" =~ (nvidia|NVIDIA) ]]; then
+  # Install nvidia-dkms drivers if it's an NVIDIA device
+  echo "Detected NVIDIA VGA device. Installing nvidia drivers..."
+  sudo pacman -Sy nvidia-dkms nvidia-prime nvidia-utils lib32-nvidia-utils
 else
-  echo "No VMware VGA device detected. Skipping installation."
+  echo "No VMware or NVIDIA VGA device detected. Skipping installation."
 fi
+
 mkinitcpio -p linux-zen
 mkdir -p ~/Desktop/$1/repos
 cd ~/Desktop/$1/repos
