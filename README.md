@@ -19,6 +19,10 @@ install1
 
 #parametro 3 amd-ucode o intel-ucode
 
+#parametro 4 Nombre del Host
+
+#parametro 5 Nombre del usuario
+
 en chroot
 
 install2
