@@ -28,4 +28,6 @@ mv rec.zip /mnt
 mv desktopwall.zip /mnt
 mv desk.zip /mnt
 mv installrootcfg /mnt
-arch-chroot /mnt
+arch-chroot /mnt ./installsd2 $4 $1 $2 $5
+umount -a
+reboot
