@@ -60,11 +60,11 @@ sudo unzip desk.zip
 rm ~/.config/kdeglobals
 mv kdeglobals ~/.config
 sudo mv conf/color-shemes/* .local/share/color-shemes
-sudo mv -r conf/icons/candy-icons .local/share/icons/.
-sudo mv -r conf/plasma/desktoptheme/Iridiscent-round .local/share/plasma/desktoptheme/.
-sudo mv -r conf/plasma/desktoptheme/lavender-round .local/share/plasma/desktoptheme/.
-sudo mv -r conf/plasma/look-and-feel/Iridiscent-round .local/share/plasma/desktoptheme/.
-sudo mv -r conf/plasma/look-and-feel/Lavender-round .local/share/plasma/desktoptheme/.
+sudo cp -r conf/icons/candy-icons .local/share/icons/.
+sudo cp -r conf/plasma/desktoptheme/Iridiscent-round .local/share/plasma/desktoptheme/.
+sudo cp -r conf/plasma/desktoptheme/lavender-round .local/share/plasma/desktoptheme/.
+sudo cp -r conf/plasma/look-and-feel/Iridiscent-round .local/share/plasma/desktoptheme/.
+sudo cp -r conf/plasma/look-and-feel/Lavender-round .local/share/plasma/desktoptheme/.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
