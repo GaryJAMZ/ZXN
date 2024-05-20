@@ -7,13 +7,10 @@ Nota: archivo installblack es experimental pero no afecta en nada si esta aqui y
 
 orden de ejcutcion
 
-si se usa sd y no un nvme o algun otro tipo de unidad difernte usar installsd1 e installsd2, para unidades nvme o diferentes usar install1 e install2 agregando el nombre del disco completo no solo la letra
+Primero hacer chmod de install y ejecutar
+#pasar 3 parametros al script
 
-install1
-
-#pasar 3 parametros
-
-#parametro 1 letra del disco a instalar o nombre completo si se usa nvme
+#parametro 1 nombre de la unidad (sda,sdb,nvme) identificar exactamente la unidad donde instalar
 
 #parametro 2 nombre para el cifrado
 
@@ -27,10 +24,9 @@ Reiniciara el sistema.
 
 Hasta aqui ya tienes un Arch linux instalado cifrado y limpio
 
-Para instalar la interfaz grafica deben buscarse manualmente los comandos dependiendo de la gpu.
-una vez tengas los drivers de tu GPU puedes proceder con install3
+para vmware o nvidia al ejecutar after los detectara si no se deben instalar antes de ejecutar los drivers correspondientes
 
-install3
+una vez eso en cuenta ejecutar after
 
 #pasar parametro nombre de usuario
 
