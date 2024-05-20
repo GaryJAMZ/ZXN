@@ -17,14 +17,11 @@ else
 fi
 
 mkinitcpio -p linux-zen
-# Prompt for custom installation
 sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid inotify-tools nemo lame p7zip unzip zip
 sudo pacman -Sy --noconfirm xorg plasma plasma-framework5 sddm sddm-kcm
 read -p "Do you want a custom installation? (y/N): " custom_install
 
-# Check user response
 if [[ "$custom_install" =~ (y|Y) ]]; then
-  # Execute custom installation command (replace with your specific command)
   echo "Starting custom installation..."
   sudo pacman -Sy
   mkdir -p ~/Desktop/$1/repos
@@ -101,7 +98,6 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   sudo ln -s -f /home/$1/.zshrc /root/.zshrc
   sudo usermod --shell /usr/bin/zsh root
   sudo cp ~/.p10k.zsh /root/
-  # Add additional custom installation steps here
 else
   echo "Skipping custom installation."
   sudo rm /home/$1/rec.zip
