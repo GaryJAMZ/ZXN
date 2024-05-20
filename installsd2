@@ -31,15 +31,6 @@ useradd -mG wheel $4
 echo "colocar contraseña para nuevo usuario"
 passwd $4
 sed -i '108s/# //g' /etc/sudoers
-mv kdeglobals /home/$4
-mv desk.zip /home/$4
-mv desktopwall.zip /home/$4
-mv icomoon.zip /home/$4/
-mv iosevka.zip /home/$4/
-mv kitty.conf /home/$4/
+mv rec.zip /home/$4
 mv installrootcfg /root
-mv Hack.zip /home/$4/
-mv .zshrc /home/$4/
-mv .p10k.zsh /home/$4/
-mv color.ini /home/$4/
 mv install3 /home/$4/
