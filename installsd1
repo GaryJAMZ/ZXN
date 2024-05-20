@@ -26,6 +26,7 @@ mv installsd2 /mnt
 mv install3 /mnt
 mv kdeglobals /mnt
 mv desk.zip /mnt
+mv desktopwall.zip /mnt
 mv icomoon.zip /mnt
 mv iosevka.zip /mnt
 mv kitty.conf /mnt
