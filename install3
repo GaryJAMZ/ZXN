@@ -12,7 +12,9 @@ curl -O https://blackarch.org/strap.sh
 chmod +x strap.sh
 sudo ./strap.sh
 sudo pacman -Sy --noconfirm xorg plasma plasma-framework5 sddm sddm-kcm firewalld gparted htop clamav gimp openssh wget
-paru -S kvantum pamac-aur nerd-fonts-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons spotify microsoft-edge-stable-bin scrub
+paru -S pamac-aur
+paru -S kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
+paru -S spotify microsoft-edge-stable-bin
 cd /usr/share/fonts
 sudo mv /home/$1/iosevka.zip .
 sudo unzip iosevka.zip
@@ -46,6 +48,23 @@ cd
 mkdir ~/.config/kitty
 mv kitty.conf ~/.config/kitty/
 mv color.ini ~/.config/kitty/
+sudo pacman -S cmake extra-cmake-modules kdecoration qt5-declarative qt5-x11extras
+git clone --single-branch --depth=1 https://github.com/Luwx/Lightly.git
+cd Lightly && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF ..
+make
+sudo make install
+git clone https://github.com/Luwx/LightlyShaders
+cd LightlyShaders; mkdir qt5build; cd qt5build; cmake ../ -DCMAKE_INSTALL_PREFIX=/usr -DQT5BUILD=ON && make && sudo make install && (kwin_x11 --replace &)
+sudo unzip desk.zip
+rm ~/.config/kdeglobals
+mv kdeglobals ~/.config
+sudo mv conf/color-shemes/* .local/share/color-shemes
+sudo mv -r conf/icons/candy-icons .local/share/icons/.
+sudo mv -r conf/plasma/desktoptheme/Iridiscent-round .local/share/plasma/desktoptheme/.
+sudo mv -r conf/plasma/desktoptheme/lavender-round .local/share/plasma/desktoptheme/.
+sudo mv -r conf/plasma/look-and-feel/Iridiscent-round .local/share/plasma/desktoptheme/.
+sudo mv -r conf/plasma/look-and-feel/Lavender-round .local/share/plasma/desktoptheme/.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
