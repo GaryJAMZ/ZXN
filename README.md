@@ -33,8 +33,9 @@ una vez eso en cuenta ejecutar after
 
 y reiniciar
 
-finalizar con root
+finalizar la instalacion en path root como root 
 
-installrootcfg
+rootinstaller
+este es opcional e innecesario solo es para isntalar nvchad y powerlvl10k para zsh del usuario root
 
 NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT
