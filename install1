@@ -24,15 +24,6 @@ genfstab -U /mnt >> /mnt/etc/fstab
 chmod +x install2 install3 installrootcfg
 mv install2 /mnt
 mv install3 /mnt
-mv kdeglobals /mnt
-mv desk.zip /mnt
-mv desktopwall.zip /mnt
-mv icomoon.zip /mnt
-mv iosevka.zip /mnt
-mv kitty.conf /mnt
+mv rec.zip /mnt
 mv installrootcfg /mnt
-mv Hack.zip /mnt
-mv .zshrc /mnt
-mv color.ini /mnt
-mv .p10k.zsh /mnt
 arch-chroot /mnt
