@@ -11,7 +11,7 @@ b=$(sgdisk /dev/$1 -F)
 c=$(sgdisk /dev/$1 -E)
 sgdisk /dev/$1 -n 2:$b:$c
 echo "Configuración de cifrado con luks"
-if [[ "$1" =~ [a-zA-Z] ]]; then
+if [[ "$1" =~  (sd[a-zA-Z]) ]]; then
     cryptsetup -y -v luksFormat /dev/$12
     echo "cifrado finalizado"
     cryptsetup open /dev/$12 $2
