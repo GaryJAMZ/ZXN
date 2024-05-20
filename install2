@@ -36,3 +36,4 @@ mv desktopwall.zip /home/$4
 mv desk.zip /home/$4
 mv installrootcfg /root
 mv install3 /home/$4/
+exit
