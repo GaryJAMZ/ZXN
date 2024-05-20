@@ -1,5 +1,5 @@
 #!/bin/bash
-unzip rec.zip
+
 # Store the 5th column output in a variable
 vga_device=$(lspci | grep VGA | tr "[:upper:]" "[:lower:]" | awk '{print $5}')
 
@@ -23,7 +23,7 @@ read -p "Do you want a custom installation? (y/N): " custom_install
 
 if [[ "$custom_install" =~ (y|Y) ]]; then
   echo "Starting custom installation..."
-  sudo pacman -Sy
+  unzip rec.zipVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   mkdir -p ~/Desktop/$1/repos
   cd ~/Desktop/$1/repos
   git clone https://aur.archlinux.org/paru.git
