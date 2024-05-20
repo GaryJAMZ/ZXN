@@ -23,19 +23,7 @@ install1
 
 #parametro 5 Nombre del usuario
 
-en chroot
-
-install2
-
-#parametro 1 nombre del host
-
-#parametro 2 letra de unidad de almacen o nombre completo si se usa nvme
-
-#parametro 3 nombre de cryptsetup usado
-
-#parametro 4 nombre de usuario
-
-salir y reiniciar
+Reiniciara el sistema.
 
 Hasta aqui ya tienes un Arch linux instalado cifrado y limpio
 
