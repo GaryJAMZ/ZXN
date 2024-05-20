@@ -24,6 +24,8 @@ genfstab -U /mnt >> /mnt/etc/fstab
 chmod +x install2 install3 installrootcfg
 mv install2 /mnt
 mv install3 /mnt
+mv kdeglobals /mnt
+mv desk.zip /mnt
 mv icomoon.zip /mnt
 mv iosevka.zip /mnt
 mv kitty.conf /mnt
