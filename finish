@@ -22,7 +22,7 @@ sed -i '55s/base udev autodetect microcode modconf kms keyboard keymap consolefo
 mkinitcpio -p linux-zen
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
-if [[ "$1" =~  (sd[a-zA-Z]) ]]; then
+if [[ "$2" =~  (sd[a-zA-Z]) ]]; then
     a=$(blkid /dev/$22)
 else
     a=$(blkid /dev/$2p2)
