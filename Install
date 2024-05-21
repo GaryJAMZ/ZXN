@@ -36,7 +36,6 @@ chmod +x finish after rootinstaller
 mv finish /mnt
 mv after /mnt
 mv rec.zip /mnt
-mv desktopwall.zip /mnt
 mv rootinstaller /mnt
 arch-chroot /mnt ./finish $4 $1 $2 $5
 umount -a

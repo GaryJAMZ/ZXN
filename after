@@ -82,12 +82,10 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   sudo usermod --shell /usr/bin/zsh root
   sudo cp ~/.p10k.zsh /root/
   sudo rm rec.zip
-  sudo unzip desktopwall.zip
 else
   echo "Skipping custom installation."
   sudo pacman -S --needed --noconfirm konsole
   sudo rm /home/$1/rec.zip
-  sudo rm /home/$1/desktopwall.zip
   sudo rm /root/rootinstaller
 fi
 sudo systemctl enable sddm.service

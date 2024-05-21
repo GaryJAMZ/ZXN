@@ -36,7 +36,6 @@ echo "colocar contraseña para nuevo usuario"
 passwd $4
 sed -i '108s/# //g' /etc/sudoers
 mv rec.zip /home/$4
-mv desktopwall.zip /home/$4
 mv rootinstaller /root
 mv after /home/$4/
 exit
