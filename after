@@ -84,9 +84,11 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   cd
   sudo unzip desk.zip
   mv kdeglobals ~/.config
-  sudo mv ~/desk/conf/color-schemes .local/share/.
-  sudo mv ~/desk/conf/icons .local/share/.
-  sudo mv ~/desk/conf/plasma .local/share/.
+  sudo mkdir ~/.local
+  sudo mkdir ~/.local/share
+  sudo mv ~/desk/conf/color-schemes ~/.local/share/.
+  sudo mv ~/desk/conf/icons ~/.local/share/.
+  sudo mv ~/desk/conf/plasma ~/.local/share/.
   sudo mv ~/desk/conf/kde_settings.conf /etc/sddm.conf.d/.
   sudo mv ~/desk/conf/default.conf /usr/lib/sddm/sddm.conf.d/.
   sudo tar -xzvf ~/desk/conf/Uzuri-forAll-Themes.tar.gz -C /usr/share/sddm/themes
