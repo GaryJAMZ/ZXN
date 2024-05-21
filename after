@@ -90,4 +90,3 @@ else
 fi
 sudo systemctl enable sddm.service
 sudo systemctl enable NetworkManager.service
-reboot
