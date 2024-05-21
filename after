@@ -84,11 +84,11 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   cd
   sudo unzip desk.zip
   mv kdeglobals ~/.config
-  sudo mv conf/color-schemes .local/share/.
-  sudo mv conf/icons .local/share/.
-  sudo mv conf/plasma .local/share/.
-  sudo mv conf/kde_settings.conf /etc/sddm.conf.d/.
-  sudo mv conf/default.conf /usr/lib/sddm/sddm.conf.d/.
+  sudo mv desk/conf/color-schemes .local/share/.
+  sudo mv desk/conf/icons .local/share/.
+  sudo mv desk/conf/plasma .local/share/.
+  sudo mv desk/conf/kde_settings.conf /etc/sddm.conf.d/.
+  sudo mv desk/conf/default.conf /usr/lib/sddm/sddm.conf.d/.
   sudo tar -xzvf ~/conf/Uzuri-forAll-Themes.tar.gz -C /usr/share/sddm/themes
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
   ~/.fzf/install
@@ -98,6 +98,9 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   sudo ln -s -f /home/$1/.zshrc /root/.zshrc
   sudo usermod --shell /usr/bin/zsh root
   sudo cp ~/.p10k.zsh /root/
+  sudo rm desk.zip
+  sudo rm rec.zip
+  sudo unzip desktopwall.zip
 else
   echo "Skipping custom installation."
   sudo pacman -S --needed --noconfirm konsole
