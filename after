@@ -18,7 +18,18 @@ fi
 
 mkinitcpio -p linux-zen
 sudo pacman -S --needed --noconfirm alsa-utils alsa-tools pulseaudio acpi acpid inotify-tools nemo lame p7zip unzip zip
-sudo pacman -Sy --noconfirm xorg plasma plasma-framework5 sddm sddm-kcm
+sudo pacman -Sy --needed --noconfirm kf6 qt6 plasma-meta kde-applications-meta packagekit-qt6 kde-cli-tools kdeplasma-addons plasma-activities polkit-kde-agent glib2 ibus kaccounts-integration kscreen libaccounts-qt plasma-nm plasma-pa scim extra-cmake-modules kaccounts-integration kdoctools libibus wayland-protocols plasma-applet-window-buttons plasma-workspace appmenu-gtk-module kwayland-integration plasma5-integration xdg-desktop-portal-gtk
+sudo systemctl enable sddm.service
+
+sudo pacman -S --needed --noconfirm gstreamer gst-libav gst-plugins-bad gst-plugins-base gst-plugins-ugly gst-plugins-good libdvdcss alsa-utils alsa-firmware pavucontrol lib32-pipewire-jack libpipewire pipewire-v4l2 pipewire-x11-bell pipewire-zeroconf realtime-privileges sof-firmware ffmpeg ffmpegthumbs ffnvcodec-headers
+echo "Adding support for OS-Prober"
+install_packages "os-prober"
+sed -i 's/#\s*GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' '/etc/default/grub'
+os-prober
+grub-mkconfig -o /boot/grub/grub.cfg
+sudo pacman -S --needed --noconfirm meld timeshift
+
+
 read -p "Do you want a custom installation? (y/N): " custom_install
 
 if [[ "$custom_install" =~ (y|Y) ]]; then
@@ -26,11 +37,7 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   unzip rec.zip
   mkdir -p ~/Desktop/$1/repos
   cd ~/Desktop/$1/repos
-  git clone https://aur.archlinux.org/paru.git
-  cd paru
-  makepkg -si
-  sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip
-  cd ..
+  pacman -Syy --noconfirm paru-bin
   mkdir blackarch
   cd blackarch
   curl -O https://blackarch.org/strap.sh
@@ -88,5 +95,7 @@ else
   sudo rm /home/$1/rec.zip
   sudo rm /root/rootinstaller
 fi
-sudo systemctl enable sddm.service
+
 sudo systemctl enable NetworkManager.service
+
+reboot
