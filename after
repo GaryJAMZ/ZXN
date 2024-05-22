@@ -18,14 +18,14 @@ fi
 
 mkinitcpio -p linux-zen
 sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame p7zip unzip zip
-sudo pacman -Sy --needed kf6 qt6 jq xmlstarlet plasma-desktop packagekit-qt6 packagekit kcron kio-admin ksystemlog discover plasma-workspace plasma-workspace-wallpapers powerdevil plasma-nm kdeplasma-addons plasma-pa plasma-integration plasma-browser-integration plasma-systemmonitor kpipewire keysmith plasmatube plasma-pass plasma5-integration kget kio-extras kio-gdrive kio-zeroconf colord-kde gwenview kcolorchooser kdegraphics-thumbnailers kimagemapeditor okular spectacle svgpart ark kate kcalc kcharselect kdebugsettings kdf kdialog keditbookmarks kfind kgpg markdownpart audiotube elisa ffmpegthumbs plasmatube pim-data-exporter pim-sieve-editor emoji-font ttf-joypixels gcc-libs glibc icu kauth kcmutils kcodecs kcompletion kconfig kconfigwidgets kcoreaddons kcrash kdbusaddons kdeclarative kglobalaccel kguiaddons ki18n kiconthemes kio kirigami kirigami-addons kitemmodels kitemviews kjobwidgets kmenuedit knewstuff knotifications knotifyconfig kpackage krunner kservice ksvg kwidgetsaddons kwindowsystem kxmlgui libcanberra libksysguard libplasma libx11 libxcb libxcursor libxi libxkbcommon libxkbfile plasma-activities plasma-activities-stats polkit-kde-agent qt6-5compat qt6-base qt6-declarative sdl2 solid sonnet systemsettings xcb-util-keysyms xdg-user-dirs scim extra-cmake-modules intltool xf86-input-libinput sddm-kcm bluedevil drkonqi kde-gtk-config kdeplasma-addons kinfocenter kscreen ksshaskpass xdg-desktop-portal-kde flatpak-kcm
+sudo pacman -Sy --needed kf6 qt6 plasma-meta kde-accessibility-meta kde-system-meta kde-sdk-meta kde-utilities-meta kdevelop-meta packagekit-qt6 kde-cli-tools kdeplasma-addons plasma-activities polkit-kde-agent glib2 ibus kaccounts-integration kscreen libaccounts-qt plasma-nm plasma-pa scim extra-cmake-modules kaccounts-integration kdoctools libibus wayland-protocols plasma-applet-window-buttons plasma-workspace appmenu-gtk-module kwayland-integration plasma5-integration xdg-desktop-portal-gtk
 sudo systemctl enable sddm.service
 
 sudo pacman -S --needed --noconfirm gstreamer gst-libav gst-plugins-bad gst-plugins-base gst-plugins-ugly gst-plugins-good libdvdcss alsa-utils alsa-tools pulseaudio alsa-firmware pavucontrol lib32-pipewire-jack libpipewire pipewire-v4l2 pipewire-x11-bell pipewire-zeroconf realtime-privileges sof-firmware ffmpeg ffmpegthumbs ffnvcodec-headers
 echo "Adding support for OS-Prober"
 sudo pacman -S --needed --noconfirm os-prober
-sed -i 's/#\s*GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' '/etc/default/grub'
-os-prober
+sudo sed -i 's/#\s*GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' '/etc/default/grub'
+sudo os-prober
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
