@@ -36,7 +36,7 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   unzip rec.zip
   mkdir -p ~/Desktop/$1/repos
   cd ~/Desktop/$1/repos
-  pacman -Sy --noconfirm paru-bin
+  sudo pacman -Sy --noconfirm paru
   sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip
   mkdir blackarch
   cd blackarch
