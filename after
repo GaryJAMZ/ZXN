@@ -36,7 +36,7 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   unzip rec.zip
   mkdir -p ~/Desktop/$1/repos
   cd ~/Desktop/$1/repos
-  sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip 	nodejs-lts-iron
+  sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip nodejs-lts-iron npm
   mkdir blackarch
   cd blackarch
   curl -O https://blackarch.org/strap.sh
