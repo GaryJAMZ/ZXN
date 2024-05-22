@@ -3,8 +3,6 @@ Work
 
 Este repositorio esta destinado a guardar mi configuracion de instalacion de Archlinux segun mis requerimientos.
 
-Nota: archivo installblack es experimental pero no afecta en nada si esta aqui ya que no se utiliza nunca por ningun script listado a continuación.
-
 orden de ejcutcion
 
 Primero hacer chmod de install y ejecutar
@@ -35,7 +33,7 @@ NOTA: NO USAR SUDO PARA LANZAR EL SCRIPT Y TENER EN CUENTA QUE AFTER PREGUNTARA 
 
 y reiniciar
 
-finalizar la instalacion en path root como root 
+finalizar la instalacion en path root como root
 
 rootinstaller
 este es opcional e innecesario solo es para isntalar nvchad y powerlvl10k para zsh del usuario root
