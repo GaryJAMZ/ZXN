@@ -44,6 +44,16 @@ if [[ "$custom_install" =~ (y|Y) ]]; then
   sudo ./strap.sh
   sudo pacman -Sy --noconfirm firewalld gparted htop clamav gimp openssh wget
   sudo pacman -Sy paru
+  read -p "Paru se instalo o nelson? (y/N): " paru_install
+  if [[ "$paru_install" =~ (y|Y) ]]; then
+    echo "Paru se instalo."
+  else
+    echo "Instalando paru..."
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
+    makepkg -si
+    cd ..
+  fi
   paru -S pamac-aur
   paru -S kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
   paru -S spotify microsoft-edge-stable-bin
