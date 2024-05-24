@@ -36,6 +36,7 @@ echo "colocar contraseña para $4"
 passwd $4
 sed -i '108s/# //g' /etc/sudoers
 mv rec.zip /home/$4
+mv nemo /home/$4
 mv rootinstaller /root
 mv after /home/$4/
 exit
