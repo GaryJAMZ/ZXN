@@ -1,0 +1,90 @@
+.nemo-desktop.nemo-canvas-item { @extend %nautilus_canvas_item; }
+
+.nemo-window {
+
+  .nemo-window-pane widget.entry {
+    border: 1px solid;
+    border-radius: 3px;
+
+    @include entry(focus);
+
+    &:selected { &:focus, & { @extend %selected_items; }}
+  }
+
+  .nemo-inactive-pane .view {
+    background-color: darken($base_color, 5%);
+
+    &:selected { &:focus, & { @extend %selected_items; }}
+  }
+
+  .places-treeview {
+    -NemoPlacesTreeView-disk-full-bg-color: $dark_sidebar_fg;
+    -NemoPlacesTreeView-disk-full-fg-color: darken($selected_bg_color, 10%);
+    -GtkTreeView-vertical-separator: 7;
+
+    .view.cell:hover { background-color: transparentize($dark_sidebar_fg, 0.85); }
+  }
+
+  .nemo-places-sidebar.frame { border-width: 0; }
+
+  .sidebar {
+    color: $dark_sidebar_fg;
+    background-color: $dark_sidebar_bg;
+
+    .frame { border: none; }
+
+    .view, row {
+      background-color: transparent;
+      color: $dark_sidebar_fg;
+
+      &.cell:selected {
+        background-color: $selected_bg_color;
+        color: $selected_fg_color;
+      }
+
+      &.expander {
+        color: mix($dark_sidebar_fg, $dark_sidebar_bg, 50%);
+
+        &:hover { color: $dark_sidebar_fg; }
+      }
+    }
+
+    scrollbar { @extend %dark_sidebar_scrollbar }
+  }
+
+  /* This is to keep the separator next to the sidebar dark so we don't see a gap
+     between it and the trash bar */
+  grid > paned > separator { background-image: _solid($dark_sidebar_bg); }
+
+  // Fix padding of the statusbar buttons
+  & widget .toolbar .image-button { padding: 0; }
+}
+
+//
+// Caja
+//
+
+.caja-navigation-window {
+
+  /* This seems to be needed to get proper highlighting in the caja view
+   * when split panes are used. Without it the inactive pane isn't displayed
+   * properly
+   */
+  .view .cell:selected {
+    &, &:focus {
+      background-image: _solid($selected_bg_color);
+
+      @extend %selected_items;
+    }
+  }
+
+  .caja-side-pane {
+
+    .view,
+    textview text,
+    notebook {
+      background-color: $dark_sidebar_bg;
+      color: $dark_sidebar_fg;
+    }
+  }
+}
