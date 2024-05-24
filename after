@@ -35,17 +35,20 @@ read -p "Do you want a custom installation? (y/N): " custom_install
 
 if [[ "$custom_install" =~ (y|Y) ]]; then
   echo "Starting custom installation..."
+  sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip nodejs-lts-iron npm
   unzip rec.zip
   mkdir -p ~/Desktop/$1/repos
   cd ~/Desktop/$1/repos
-  sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip nodejs-lts-iron npm
   mkdir blackarch
   cd blackarch
   curl -O https://blackarch.org/strap.sh
   chmod +x strap.sh
   sudo ./strap.sh
+  cd ..
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
+  makepkg -si
   sudo pacman -Sy --noconfirm firewalld gparted htop clamav gimp openssh wget
-  sudo pacman -Sy paru
 
   paru -S pamac-aur
   paru -S kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
