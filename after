@@ -23,7 +23,7 @@ else
 fi
 
 mkinitcpio -p linux-zen
-sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame p7zip unzip zip
+sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame
 sudo systemctl enable acpid.service
 sudo pacman -Sy --needed --noconfirm kf6 qt6 drkonqi qt5-graphicaleffects plasma-framework5 kde-gtk-config kdeplasma-addons kgamma kinfocenter kscreen ksshaskpass kwallet-pam kwrited plasma-browser-integration plasma-desktop plasma-disks plasma-firewall plasma-nm plasma-pa plasma-systemmonitor plasma-thunderbolt plasma-vault sddm-kcm xdg-desktop-portal-kde plasma-activities polkit-kde-agent glib2 libaccounts-qt extra-cmake-modules plasma-applet-window-buttons plasma-workspace appmenu-gtk-module plasma5-integration xdg-desktop-portal-gtk
 sudo systemctl enable sddm.service
