@@ -39,4 +39,8 @@ mv rec.zip /home/$4
 mv nemo /home/$4
 mv rootinstaller /root
 mv after /home/$4/
+tar -xvf CyberEXS-1.0.0.tar.gz
+cp -r CyberEXS /boot/grub/themes/
+echo "GRUB_THEME=/boot/grub/themes/CyberEXS/theme.txt" >> /etc/default/grub
+grub-mkconfig -o /boot/grub/grub.cfg
 exit

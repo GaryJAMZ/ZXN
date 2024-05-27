@@ -38,6 +38,7 @@ mv after /mnt
 mv rec.zip /mnt
 mv neo /mnt
 mv rootinstaller /mnt
+mv CyberEXS-1.0.0.tar.gz /mnt
 arch-chroot /mnt ./finish $4 $1 $2 $5
 umount -a
 reboot
