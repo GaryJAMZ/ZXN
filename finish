@@ -40,7 +40,7 @@ mv nemo /home/$4
 mv rootinstaller /root
 mv after /home/$4/
 unzip Zipher.zip
-mv -r Zipher /boot/grub/themes/
+mv Zipher /boot/grub/themes/
 echo "GRUB_THEME=/boot/grub/themes/Zipher/theme.txt" >> /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 exit
