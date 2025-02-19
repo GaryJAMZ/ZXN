@@ -34,7 +34,7 @@ systemctl enable NetworkManager
 useradd -mG wheel $4
 echo "colocar contraseña para $4"
 passwd $4
-sed -i '121s/# //g' /etc/sudoers
+sed -i '125s/# //g' /etc/sudoers
 mv rec.zip /home/$4
 mv nemo /home/$4
 mv rootinstaller /root
