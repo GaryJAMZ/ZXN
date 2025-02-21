@@ -81,7 +81,7 @@ echo "Creando usuario $USUARIO..."
 useradd -mG wheel $USUARIO
 echo "Establece contraseña para $USUARIO:"
 passwd $USUARIO
-sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 # Mover archivos de soporte al entorno de usuario y root
 mv rec.zip /home/$USUARIO
