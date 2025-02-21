@@ -71,6 +71,7 @@ chmod +x finish after rootinstaller
 # Mover scripts y archivos de soporte al nuevo sistema
 mv finish /mnt
 mv after /mnt
+mv nemo /mnt
 mv rec.zip /mnt
 mv rootinstaller /mnt
 mv Zipher.zip /mnt
