@@ -1,43 +1,83 @@
 #!/bin/bash
-pacman -Sy
-parted /dev/$1 mklabel bsd
-dd bs=1k count=1 if=/dev/zero of=/dev/$1
-partprobe
-sgdisk /dev/$1 -g
-a=$(sgdisk /dev/$1 -F)
-sgdisk /dev/$1 -n 1:$a:500M
-sgdisk /dev/$1 -t 1:ef00
-b=$(sgdisk /dev/$1 -F)
-c=$(sgdisk /dev/$1 -E)
-sgdisk /dev/$1 -n 2:$b:$c
-echo "Configuración de cifrado con luks"
-if [[ "$1" =~  (sd[a-zA-Z]) ]]; then
-    cryptsetup -y -v luksFormat /dev/$12
-    echo "cifrado finalizado"
-    cryptsetup open /dev/$12 $2
-    mkfs.ext4 /dev/mapper/$2
-    mkfs.fat -F32 /dev/$11
-    mount /dev/mapper/$2 /mnt
-    mkdir /mnt/boot
-    mount /dev/$11 /mnt/boot
-else
-    cryptsetup -y -v luksFormat /dev/$1p2
-    echo "cifrado finalizado"
-    cryptsetup open /dev/$1p2 $2
-    mkfs.ext4 /dev/mapper/$2
-    mkfs.fat -F32 /dev/$1p1
-    mount /dev/mapper/$2 /mnt
-    mkdir /mnt/boot
-    mount /dev/$1p1 /mnt/boot
+# Uso: ./install <dispositivo> <nombre_crypt> <paquetes_adicionales> <param_finish> <param_extra>
+# Ejemplo: ./install sda mycrypt "package1 package2" param_finish param_extra
+
+set -euo pipefail
+
+if [ "$#" -lt 5 ]; then
+    echo "Uso: $0 <dispositivo> <nombre_crypt> <paquetes_adicionales> <param_finish> <param_extra>"
+    exit 1
 fi
-pacstrap /mnt base linux-zen linux-firmware vim $3
+
+DISPOSITIVO=$1
+CRYPT_NAME=$2
+PAQUETES_ADICIONALES=$3
+PARAM_FINISH=$4
+PARAM_EXTRA=$5
+
+# Sincronizar repositorios
+pacman -Sy --noconfirm
+
+# Crear tabla de particiones y limpiar el MBR
+parted /dev/$DISPOSITIVO mklabel bsd
+dd bs=1k count=1 if=/dev/zero of=/dev/$DISPOSITIVO status=none
+partprobe
+sgdisk /dev/$DISPOSITIVO -g
+
+# Crear particiones: 
+# - Primera partición EFI de 500M
+# - Segunda para LUKS con el resto del disco
+efi_start=$(sgdisk /dev/$DISPOSITIVO -F)
+sgdisk /dev/$DISPOSITIVO -n 1:$efi_start:500M -t 1:ef00
+luks_start=$(sgdisk /dev/$DISPOSITIVO -F)
+luks_end=$(sgdisk /dev/$DISPOSITIVO -E)
+sgdisk /dev/$DISPOSITIVO -n 2:$luks_start:$luks_end
+
+echo "Configuración de cifrado con LUKS"
+
+# Diferenciamos nombres de partición según si es sd* o nvme*
+if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
+    PART_EFI="/dev/${DISPOSITIVO}1"
+    PART_LUKS="/dev/${DISPOSITIVO}2"
+else
+    # Suponiendo que en otros casos la convención es <dispositivo>p1 y p2
+    PART_EFI="/dev/${DISPOSITIVO}p1"
+    PART_LUKS="/dev/${DISPOSITIVO}p2"
+fi
+
+# Configurar LUKS en la partición LUKS
+cryptsetup -y -v luksFormat $PART_LUKS
+echo "Cifrado finalizado"
+cryptsetup open $PART_LUKS $CRYPT_NAME
+
+# Formatear particiones
+mkfs.ext4 /dev/mapper/$CRYPT_NAME
+mkfs.fat -F32 $PART_EFI
+
+# Montar sistemas de archivos
+mount /dev/mapper/$CRYPT_NAME /mnt
+mkdir -p /mnt/boot
+mount $PART_EFI /mnt/boot
+
+# Instalar sistema base y paquetes adicionales
+pacstrap /mnt base linux-zen linux-firmware vim $PAQUETES_ADICIONALES
+
+# Generar fstab
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# Hacer ejecutables los scripts finish, after y otros
 chmod +x finish after rootinstaller
+
+# Mover scripts y archivos de soporte al nuevo sistema
 mv finish /mnt
 mv after /mnt
 mv rec.zip /mnt
 mv rootinstaller /mnt
 mv Zipher.zip /mnt
-arch-chroot /mnt ./finish $4 $1 $2 $5
+
+# Entrar al entorno chroot y ejecutar finish con los parámetros necesarios
+arch-chroot /mnt ./finish "$PARAM_FINISH" "$DISPOSITIVO" "$CRYPT_NAME" "$PARAM_EXTRA"
+
+# Desmontar y reiniciar
 umount -a
 reboot
