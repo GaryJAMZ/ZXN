@@ -1,46 +1,97 @@
 #!/bin/bash
-fallocate -l 4GB /swapfile
+# Uso: ./finish <hostname> <dispositivo> <nombre_crypt> <usuario>
+# Ejemplo: ./finish myhostname sda mycrypt usuario
+
+set -euo pipefail
+
+if [ "$#" -lt 4 ]; then
+    echo "Uso: $0 <hostname> <dispositivo> <nombre_crypt> <usuario>"
+    exit 1
+fi
+
+HOSTNAME=$1
+DISPOSITIVO=$2
+CRYPT_NAME=$3
+USUARIO=$4
+
+echo "Configurando swap..."
+fallocate -l 4G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 echo "/swapfile none swap defaults 0 0" >> /etc/fstab
+
+echo "Configurando zona horaria y reloj..."
 ln -sf /usr/share/zoneinfo/America/Mexico_City /etc/localtime
 hwclock --systohc
-sed -i '/en_US.UTF-8*/s/^#//g' /etc/locale.gen
-sed -i '/es_MX.UTF-8*/s/^#//g' /etc/locale.gen
+
+echo "Generando locales..."
+sed -i '/en_US.UTF-8/s/^#//g' /etc/locale.gen
+sed -i '/es_MX.UTF-8/s/^#//g' /etc/locale.gen
 locale-gen
-echo LANG=es_MX.UTF-8 >> /etc/locale.conf
-echo KEYMAP=la-latin1 >> /etc/vconsole.conf
-echo $1 >> /etc/hostname
-echo -e '127.0.0.1\tlocalhost' >> /etc/hosts
-echo -e '::1\t\tlocalhost' >> /etc/hosts
-echo -e '127.0.1.1\t'$1'.localdomain\t'$1'' >> /etc/hosts
-echo "Cambiar contraseña root y verificarla"
+echo "LANG=es_MX.UTF-8" > /etc/locale.conf
+echo "KEYMAP=la-latin1" > /etc/vconsole.conf
+
+echo "$HOSTNAME" > /etc/hostname
+cat <<EOF >> /etc/hosts
+127.0.0.1    localhost
+::1          localhost
+127.0.1.1    ${HOSTNAME}.localdomain   ${HOSTNAME}
+EOF
+
+echo "Configurar contraseña de root..."
 passwd
-pacman -Sy grub efibootmgr networkmanager dhcpcd base-devel linux-zen-headers git xdg-utils xdg-user-dirs p7zip unzip zip
-sed -i '55s/base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck/base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck/g' /etc/mkinitcpio.conf
+
+echo "Instalando paquetes adicionales y configurando GRUB..."
+pacman -Sy --noconfirm grub efibootmgr networkmanager dhcpcd base-devel linux-zen-headers git xdg-utils xdg-user-dirs p7zip unzip zip
+
+# Actualizar la configuración del mkinitcpio para incluir el cifrado LUKS
+sed -i 's|base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck|base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck|' /etc/mkinitcpio.conf
 mkinitcpio -p linux-zen
+
+# Instalar y configurar GRUB para EFI
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
-if [[ "$2" =~  (sd[a-zA-Z]) ]]; then
-    a=$(blkid /dev/$22)
+
+# Obtener UUID de la partición LUKS
+if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
+    PART_LUKS="/dev/${DISPOSITIVO}2"
 else
-    a=$(blkid /dev/$2p2)
+    PART_LUKS="/dev/${DISPOSITIVO}p2"
 fi
-a1=${a[@]:17:36}
-sed -i '7s/""/"cryptdevice=UUID='$a1':'$3' root=\/dev\/mapper\/'$3'"/g' /etc/default/grub
+
+# Extraer UUID (suponiendo que blkid devuelve una línea, se extrae la parte entre comillas)
+UUID_LUKS=$(blkid -s UUID -o value $PART_LUKS)
+if [ -z "$UUID_LUKS" ]; then
+    echo "No se pudo obtener el UUID de $PART_LUKS"
+    exit 1
+fi
+
+# Configurar GRUB para el arranque cifrado
+GRUB_CMDLINE="cryptdevice=UUID=${UUID_LUKS}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME}"
+sed -i "s|^GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE}\"|" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "Habilitando NetworkManager..."
 systemctl enable NetworkManager
-useradd -mG wheel $4
-echo "colocar contraseña para $4"
-passwd $4
-sed -i '125s/# //g' /etc/sudoers
-mv rec.zip /home/$4
-mv nemo /home/$4
+
+echo "Creando usuario $USUARIO..."
+useradd -mG wheel $USUARIO
+echo "Establece contraseña para $USUARIO:"
+passwd $USUARIO
+sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+
+# Mover archivos de soporte al entorno de usuario y root
+mv rec.zip /home/$USUARIO
+mv nemo /home/$USUARIO
 mv rootinstaller /root
-mv after /home/$4/
+mv after /home/$USUARIO/
+
+echo "Instalando tema GRUB..."
 unzip Zipher.zip
 mv Zipher /boot/grub/themes/
 echo "GRUB_THEME=/boot/grub/themes/Zipher/theme.txt" >> /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "Instalación y configuración finalizadas."
 exit
