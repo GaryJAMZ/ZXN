@@ -21,7 +21,7 @@ pacman -Sy --noconfirm
 # Crear tabla de particiones y limpiar el MBR
 parted /dev/$DISPOSITIVO mklabel bsd
 dd bs=1k count=1 if=/dev/zero of=/dev/$DISPOSITIVO status=none
-partprobe
+partprobe /dev/$DISPOSITIVO
 sgdisk /dev/$DISPOSITIVO -g
 
 # Crear particiones: 
