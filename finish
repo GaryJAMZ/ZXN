@@ -79,7 +79,8 @@ echo "Moviendo archivos de soporte..."
 mv rec.zip nemo after /home/$USUARIO/
 mv rootinstaller /root
 chown -R $USUARIO:$USUARIO /home/$USUARIO/
-
+sudo pacman -S --needed --noconfirm xdg-user-dirs
+sudo -u "$USERNAME" xdg-user-dirs-update
 echo "Instalando tema de GRUB..."
 unzip Zipher.zip -d /boot/grub/themes/
 echo "GRUB_THEME=/boot/grub/themes/Zipher/theme.txt" >> /etc/default/grub
