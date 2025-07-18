@@ -149,7 +149,7 @@ sudo sed -i '92s/^#//g' /etc/pacman.conf
 sudo sed -i '93s/^#//g' /etc/pacman.conf
 sudo pacman -Sy
 sudo pacman -Sl multilib
-install_gpu_drivers
+
 sudo mkinitcpio -p linux-zen
 sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame firewalld
 sudo systemctl enable acpid.service
@@ -159,6 +159,7 @@ configure_kde
 harden_ssh
 configure_grub_osprober
 install_custom_environment
+install_gpu_drivers
 
 sudo systemctl enable NetworkManager.service
 reboot
