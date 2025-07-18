@@ -52,8 +52,6 @@ configure_kde() {
   sudo systemctl enable sddm.service
   sudo systemctl enable firewalld
   sudo systemctl start firewalld
-  sudo firewall-cmd --permanent --set-default-zone=public
-  sudo firewall-cmd --reload
 
   if [ -f /etc/sddm.conf ]; then
     sudo sed -i \
