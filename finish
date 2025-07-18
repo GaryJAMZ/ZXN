@@ -40,10 +40,9 @@ cat <<EOF > /etc/hosts
 127.0.1.1   ${HOSTNAME}.localdomain   ${HOSTNAME}
 EOF
 
+
 echo "Configurando root con políticas de contraseña fuerte..."
-pacman -Sy --noconfirm cracklib
-grep -q 'pam_cracklib.so' /etc/pam.d/passwd || \
-  echo 'password requisite pam_cracklib.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1' >> /etc/pam.d/passwd
+echo "Por favor, establezca una contraseña segura para root:"
 passwd
 
 echo "Instalando GRUB, NetworkManager y otros..."
