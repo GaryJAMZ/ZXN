@@ -1,7 +1,6 @@
 #!/bin/bash
 # Uso: ./install <dispositivo> <nombre_crypt> <paquetes_adicionales> <param_finish> <param_extra>
 # Ejemplo: ./install sda mycrypt "package1 package2" param_finish param_extra
-
 set -euo pipefail
 
 if [ "$#" -lt 5 ]; then
@@ -46,7 +45,7 @@ else
 fi
 
 # Configurar LUKS en la partición LUKS
-cryptsetup -y -v luksFormat $PART_LUKS
+cryptsetup -y -v --cipher aes-xts-plain64 --key-size 512 --hash sha512 luksFormat $PART_LUKS
 echo "Cifrado finalizado"
 cryptsetup open $PART_LUKS $CRYPT_NAME
 
