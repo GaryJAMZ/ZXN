@@ -1,86 +1,160 @@
 #!/bin/bash
 
-# Obtener la salida de la 5ta columna en minúsculas
-vga_device=$(lspci | grep VGA | tr "[:upper:]" "[:lower:]" | awk '{print $5}')
+set -euo pipefail
 
-# Verificar tipo de GPU
-if [[ "$vga_device" =~ (vmware) ]]; then
-  echo "Detected VMware VGA device. Installing mesa and xf86-video-vmware..."
-  sudo pacman -Sy --needed mesa xf86-video-vmware
-elif [[ "$vga_device" =~ (nvidia) ]]; then
-  echo "Detected NVIDIA VGA device. Installing nvidia drivers..."
-  read -p "Do you want to install the NVIDIA drivers? (y/N): " install_nvidia
-  if [[ "$install_nvidia" =~ ^[Yy]$ ]]; then
-    sudo pacman -Sy --needed nvidia-dkms nvidia-utils lib32-nvidia-utils
-  else
-    echo "Skipping NVIDIA drivers installation."
-  fi
-elif [[ "$vga_device" =~ (amd|radeon) ]]; then
-  echo "Detected AMD VGA device. Installing AMD drivers..."
-  sudo pacman -Sy --needed mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
-else
-  echo "No known VGA device detected. Skipping driver installation."
+#====================
+# Validaciones iniciales
+#====================
+if [[ -z "${1:-}" ]]; then
+  echo "Uso: $0 <nombre_de_usuario>"
+  exit 1
 fi
+USERNAME="$1"
 
-# Configuración del sistema
+#====================
+# Funciones
+#====================
+install_gpu_drivers() {
+  echo "[INFO] Detectando GPU..."
+  gpu_info=$(lspci | grep -i 'vga\|3d\|2d')
+
+  if echo "$gpu_info" | grep -iq "vmware"; then
+    echo "[GPU] VMware"
+    sudo pacman -Sy --needed --noconfirm mesa xf86-video-vmware
+  elif echo "$gpu_info" | grep -iq "nvidia"; then
+    echo "[GPU] NVIDIA"
+    read -p "Instalar drivers NVIDIA propietarios? (y/N): " install_nvidia
+    if [[ "$install_nvidia" =~ ^[Yy]$ ]]; then
+      sudo pacman -Sy --needed --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils
+    fi
+  elif echo "$gpu_info" | grep -iqE "amd|ati|radeon"; then
+    echo "[GPU] AMD"
+    sudo pacman -Sy --needed --noconfirm mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
+  elif echo "$gpu_info" | grep -iq "intel"; then
+    echo "[GPU] Intel"
+    sudo pacman -Sy --needed --noconfirm mesa xf86-video-intel vulkan-intel lib32-vulkan-intel
+  else
+    echo "[GPU] No detectada o no reconocida."
+  fi
+}
+
+setup_audio_and_multimedia() {
+  echo "[INFO] Instalando soporte multimedia y audio..."
+  sudo pacman -S --needed --noconfirm \
+    gstreamer gst-libav gst-plugins-{bad,base,ugly,good} libdvdcss \
+    alsa-utils pavucontrol \
+    pipewire pipewire-audio pipewire-pulse pipewire-jack lib32-pipewire-jack
+}
+
+configure_kde() {
+  echo "[INFO] Instalando KDE Plasma..."
+  sudo pacman -Sy --needed --noconfirm plasma-desktop sddm networkmanager firewalld
+  sudo systemctl enable sddm.service
+  sudo systemctl enable firewalld
+  sudo systemctl start firewalld
+  sudo firewall-cmd --permanent --set-default-zone=public
+  sudo firewall-cmd --reload
+
+  if [ -f /etc/sddm.conf ]; then
+    sudo sed -i \
+      -e 's/^#\?\s*User=.*/User=/' \
+      -e 's/^#\?\s*MinimumUid=.*/MinimumUid=1000/' \
+      -e 's/^#\?\s*MaximumUid=.*/MaximumUid=60000/' \
+      /etc/sddm.conf
+  fi
+}
+
+harden_ssh() {
+  if command -v sshd >/dev/null 2>&1; then
+    echo "[INFO] Endureciendo configuración SSH..."
+    sudo sed -i \
+      -e 's/^#\?\s*PermitRootLogin.*/PermitRootLogin no/' \
+      -e 's/^#\?\s*PasswordAuthentication.*/PasswordAuthentication no/' \
+      -e 's/^#\?\s*X11Forwarding.*/X11Forwarding no/' \
+      -e 's/^#\?\s*UsePAM.*/UsePAM yes/' \
+      /etc/ssh/sshd_config
+    sudo systemctl restart sshd
+  fi
+}
+
+configure_grub_osprober() {
+  echo "[INFO] Habilitando soporte para OS-Prober..."
+  sudo pacman -S --needed --noconfirm os-prober
+  sudo sed -i 's/#\s*GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+  sudo os-prober
+  sudo grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+install_custom_environment() {
+  read -p "Deseas realizar una instalación personalizada? (y/N): " custom_install
+  if [[ "$custom_install" =~ ^[Yy]$ ]]; then
+    echo "[INFO] Instalando entorno personalizado..."
+
+    unzip rec.zip
+    sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim htop clamav zsh lsd bat mdcat locate meld timeshift
+
+    mkdir -p "/home/$USERNAME/Desktop/repos/blackarch"
+    cd "/home/$USERNAME/Desktop/repos/blackarch"
+    curl -O https://blackarch.org/strap.sh
+    chmod +x strap.sh && sudo ./strap.sh
+
+    git clone https://aur.archlinux.org/paru.git "/home/$USERNAME/Desktop/repos/paru"
+    cd "/home/$USERNAME/Desktop/repos/paru"
+    makepkg -si
+
+    paru -S pamac-aur kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons zsh-syntax-highlighting zsh-autosuggestions
+
+    install_fonts "iosevka.zip"
+    install_fonts "icomoon.zip" "icomoon"
+    install_fonts "Hack.zip"
+
+    mkdir -p "/home/$USERNAME/.config/kitty"
+    mv kitty.conf color.ini "/home/$USERNAME/.config/kitty/"
+
+    git clone --depth 1 https://github.com/junegunn/fzf.git "/home/$USERNAME/.fzf"
+    /home/$USERNAME/.fzf/install
+
+    git clone https://github.com/NvChad/starter "/home/$USERNAME/.config/nvim"
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "/home/$USERNAME/powerlevel10k"
+
+    sudo cp "/home/$USERNAME/.zshrc" /root/
+    sudo ln -s -f "/home/$USERNAME/.zshrc" /root/.zshrc
+    sudo cp "/home/$USERNAME/.p10k.zsh" /root/
+
+    sudo usermod --shell /usr/bin/zsh "$USERNAME"
+    sudo usermod --shell /usr/bin/zsh root
+    sudo updatedb
+  else
+    echo "Instalación personalizada omitida."
+    sudo pacman -S --needed --noconfirm konsole
+  fi
+}
+
+install_fonts() {
+  zip_file="$1"
+  subdir="${2:-}"
+  if [[ -f "/home/$USERNAME/$zip_file" ]]; then
+    sudo cp "/home/$USERNAME/$zip_file" /usr/share/fonts/
+    cd /usr/share/fonts
+    sudo unzip "$zip_file"
+    sudo rm "$zip_file"
+    [[ -n "$subdir" ]] && sudo mv "$subdir"/*.ttf . && sudo rm -rf "$subdir"
+  fi
+}
+
+#====================
+# Ejecución principal
+#====================
+install_gpu_drivers
 sudo mkinitcpio -p linux-zen
-sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame
+sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame firewalld
 sudo systemctl enable acpid.service
 
-# Instalación de KDE Plasma
-sudo pacman -Sy --needed --noconfirm kf6 qt6 drkonqi qt5-graphicaleffects plasma-framework5 kde-gtk-config kdeplasma-addons kgamma kinfocenter kscreen ksshaskpass kwallet-pam kwrited plasma-browser-integration plasma-desktop plasma-disks plasma-firewall plasma-nm plasma-pa plasma-systemmonitor plasma-thunderbolt plasma-vault sddm-kcm xdg-desktop-portal-kde plasma-activities polkit-kde-agent glib2 libaccounts-qt extra-cmake-modules plasma-applet-window-buttons plasma-workspace appmenu-gtk-module plasma5-integration xdg-desktop-portal-gtk
-sudo systemctl enable sddm.service
-sudo systemctl enable avahi-daemon.service
+setup_audio_and_multimedia
+configure_kde
+harden_ssh
+configure_grub_osprober
+install_custom_environment
 
-# Instalación de audio y multimedia
-sudo pacman -S --needed --noconfirm gstreamer gst-libav gst-plugins-bad gst-plugins-base gst-plugins-ugly gst-plugins-good libdvdcss alsa-utils alsa-tools pulseaudio alsa-firmware pavucontrol lib32-pipewire-jack libpipewire pipewire-v4l2 pipewire-x11-bell pipewire-zeroconf
-
-# Soporte para OS-Prober
-sudo pacman -S --needed --noconfirm os-prober
-sudo sed -i 's/#\s*GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' '/etc/default/grub'
-sudo os-prober
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-
-# Instalación personalizada opcional
-read -p "Do you want a custom installation? (y/N): " custom_install
-
-if [[ "$custom_install" =~ ^[Yy]$ ]]; then
-  echo "Starting custom installation..."
-  sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim xclip nodejs-lts-iron npm firewalld gparted htop clamav gimp openssh wget
-  
-  mkdir -p ~/Desktop/$1/repos/blackarch
-  cd ~/Desktop/$1/repos/blackarch
-  curl -O https://blackarch.org/strap.sh
-  chmod +x strap.sh
-  sudo ./strap.sh
-  
-  git clone https://aur.archlinux.org/paru.git ~/Desktop/$1/repos/paru
-  cd ~/Desktop/$1/repos/paru
-  makepkg -si
-  
-  paru -S pamac-aur kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons
-  
-  sudo pacman -S --needed --noconfirm zsh lsd bat mdcat locate meld timeshift
-  
-  sudo usermod --shell /usr/bin/zsh $1
-  paru -S zsh-syntax-highlighting zsh-autosuggestions
-  
-  sudo updatedb
-  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-  ~/.fzf/install
-  
-  git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
-  
-  sudo cp ~/.zshrc /root/
-  sudo ln -s -f /home/$1/.zshrc /root/.zshrc
-  sudo usermod --shell /usr/bin/zsh root
-  sudo cp ~/.p10k.zsh /root/
-else
-  echo "Skipping custom installation."
-  sudo pacman -S --needed --noconfirm konsole
-fi
-
-# Habilitar NetworkManager y reiniciar
 sudo systemctl enable NetworkManager.service
 reboot
