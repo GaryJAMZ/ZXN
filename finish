@@ -46,7 +46,7 @@ echo "Por favor, establezca una contraseña segura para root:"
 passwd
 
 echo "Instalando GRUB, NetworkManager y otros..."
-pacman -Sy --noconfirm grub efibootmgr networkmanager sudo
+pacman -Sy --noconfirm grub efibootmgr networkmanager sudo unzip
 
 # Detectar partición cifrada y obtener UUID
 if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
