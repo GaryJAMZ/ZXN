@@ -145,6 +145,10 @@ install_fonts() {
 #====================
 # Ejecución principal
 #====================
+sudo sed -i '92s/^#//g' /etc/pacman.conf
+sudo sed -i '93s/^#//g' /etc/pacman.conf
+sudo pacman -Sy
+sudo pacman -Sl multilib
 install_gpu_drivers
 sudo mkinitcpio -p linux-zen
 sudo pacman -S --needed --noconfirm acpi acpid inotify-tools nemo lame firewalld
