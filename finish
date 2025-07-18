@@ -2,6 +2,7 @@
 # Uso: ./finish <hostname> <dispositivo> <nombre_crypt> <usuario>
 # Ejemplo: ./finish myhostname sda mycrypt usuario
 
+
 set -euo pipefail
 
 if [ "$#" -lt 4 ]; then
@@ -21,42 +22,34 @@ mkswap /swapfile
 swapon /swapfile
 echo "/swapfile none swap defaults 0 0" >> /etc/fstab
 
-echo "Configurando zona horaria y reloj..."
+echo "Zona horaria y reloj..."
 ln -sf /usr/share/zoneinfo/America/Mexico_City /etc/localtime
 hwclock --systohc
 
-echo "Generando locales..."
-sed -i '/en_US.UTF-8/s/^#//g' /etc/locale.gen
-sed -i '/es_MX.UTF-8/s/^#//g' /etc/locale.gen
+echo "Locales y teclado..."
+sed -i 's/^#\(en_US.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/^#\(es_MX.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 echo "LANG=es_MX.UTF-8" > /etc/locale.conf
 echo "KEYMAP=la-latin1" > /etc/vconsole.conf
 
 echo "$HOSTNAME" > /etc/hostname
-cat <<EOF >> /etc/hosts
-127.0.0.1    localhost
-::1          localhost
-127.0.1.1    ${HOSTNAME}.localdomain   ${HOSTNAME}
+cat <<EOF > /etc/hosts
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   ${HOSTNAME}.localdomain   ${HOSTNAME}
 EOF
 
-echo "Configurar contraseña de root..."
+echo "Configurando root con políticas de contraseña fuerte..."
+pacman -Sy --noconfirm pam_pwquality
+grep -q 'pam_pwquality.so' /etc/pam.d/passwd || \
+  echo 'password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1' >> /etc/pam.d/passwd
 passwd
 
-echo "Instalando paquetes adicionales y configurando GRUB..."
-pacman -Sy --noconfirm grub efibootmgr networkmanager dhcpcd base-devel linux-zen linux-zen-headers linux-lts linux-lts-headers git xdg-utils xdg-user-dirs p7zip unzip zip
+echo "Instalando GRUB, NetworkManager y otros..."
+pacman -Sy --noconfirm grub efibootmgr networkmanager
 
-# Actualizar la configuración del mkinitcpio para incluir el cifrado LUKS
-sed -i 's|base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck|base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck|' /etc/mkinitcpio.conf
-
-# Generar initramfs para ambos kernels
-mkinitcpio -p linux-zen
-mkinitcpio -p linux-lts
-
-# Instalar y configurar GRUB para EFI
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-grub-mkconfig -o /boot/grub/grub.cfg
-
-# Obtener UUID de la partición LUKS
+# Detectar partición cifrada y obtener UUID
 if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
     PART_LUKS="/dev/${DISPOSITIVO}2"
 else
@@ -64,36 +57,34 @@ else
 fi
 
 UUID_LUKS=$(blkid -s UUID -o value $PART_LUKS)
-if [ -z "$UUID_LUKS" ]; then
-    echo "No se pudo obtener el UUID de $PART_LUKS"
-    exit 1
-fi
 
-# Configurar GRUB: se añade el parámetro cryptdevice para ambos kernels
-GRUB_CMDLINE="cryptdevice=UUID=${UUID_LUKS}:${CRYPT_NAME} root=/dev/mapper/${CRYPT_NAME}"
-sed -i "s|^GRUB_CMDLINE_LINUX=\"\"|GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE}\"|" /etc/default/grub
+# mkinitcpio con soporte LUKS
+sed -i 's/^\(HOOKS=\).*/\1"base udev autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck"/' /etc/mkinitcpio.conf
+mkinitcpio -P
+
+# Configurar GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$UUID_LUKS:$CRYPT_NAME root=/dev/mapper/$CRYPT_NAME\"|" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
-echo "Habilitando NetworkManager..."
+echo "Activando servicios..."
 systemctl enable NetworkManager
 
-echo "Creando usuario $USUARIO..."
+echo "Creando usuario $USUARIO con privilegios sudo..."
 useradd -mG wheel $USUARIO
-echo "Establece contraseña para $USUARIO:"
 passwd $USUARIO
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+sed -i '/%wheel ALL=(ALL:ALL) ALL/ s/NOPASSWD://g' /etc/sudoers
 
-# Mover archivos de soporte al entorno de usuario y root
-mv rec.zip /home/$USUARIO
-mv nemo /home/$USUARIO
+echo "Moviendo archivos de soporte..."
+mv rec.zip nemo after /home/$USUARIO/
 mv rootinstaller /root
-mv after /home/$USUARIO/
+chown -R $USUARIO:$USUARIO /home/$USUARIO/
 
-echo "Instalando tema GRUB..."
-unzip Zipher.zip
-mv Zipher /boot/grub/themes/
+echo "Instalando tema de GRUB..."
+unzip Zipher.zip -d /boot/grub/themes/
 echo "GRUB_THEME=/boot/grub/themes/Zipher/theme.txt" >> /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
-echo "Instalación y configuración finalizadas."
-exit
+echo "Configuración completada."
+exit 0
