@@ -43,7 +43,7 @@ install_gpu_drivers() {
 
   if echo "$gpu_info" | grep -iq "vmware"; then
     echo "[GPU] VMware"
-    try_install mesa
+    try_install mesa xf86-video-vmware
   elif echo "$gpu_info" | grep -iq "nvidia"; then
     echo "[GPU] NVIDIA"
     read -p "Instalar drivers NVIDIA propietarios? (y/N): " install_nvidia
