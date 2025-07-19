@@ -91,10 +91,15 @@ install_custom_environment() {
     unzip rec.zip
     sudo pacman -S --needed --noconfirm flameshot kitty vlc neovim htop clamav zsh lsd bat mdcat locate meld timeshift
 
-    mkdir -p "/home/$USERNAME/Desktop/repos/blackarch"
-    cd "/home/$USERNAME/Desktop/repos/blackarch"
-    curl -O https://blackarch.org/strap.sh
-    chmod +x strap.sh && sudo ./strap.sh
+    read -p "¿Deseas instalar BlackArch? (y/N): " install_blackarch
+    if [[ "$install_blackarch" =~ ^[Yy]$ ]]; then
+      mkdir -p "/home/$USERNAME/Desktop/repos/blackarch"
+      cd "/home/$USERNAME/Desktop/repos/blackarch"
+      curl -O https://blackarch.org/strap.sh
+      chmod +x strap.sh && sudo ./strap.sh
+    fi
+
+
 
     git clone https://aur.archlinux.org/paru.git "/home/$USERNAME/Desktop/repos/paru"
     cd "/home/$USERNAME/Desktop/repos/paru"
