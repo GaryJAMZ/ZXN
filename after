@@ -126,6 +126,7 @@ install_custom_environment() {
     fi
 
     mkdir -p "/home/$USERNAME/.config/kitty"
+    cd
     mv kitty.conf color.ini "/home/$USERNAME/.config/kitty/"
 
     git clone --depth 1 https://github.com/junegunn/fzf.git "/home/$USERNAME/.fzf"
