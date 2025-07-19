@@ -18,25 +18,49 @@ install_gpu_drivers() {
   echo "[INFO] Detectando GPU..."
   gpu_info=$(lspci | grep -i 'vga\|3d\|2d')
 
+  try_install() {
+    local pkgs=("$@")
+    local missing_pkgs=()
+    for pkg in "${pkgs[@]}"; do
+      if ! pacman -Si "$pkg" &>/dev/null; then
+        if ! command -v paru &>/dev/null || ! paru -Si "$pkg" &>/dev/null; then
+          echo "[WARN] Paquete '$pkg' no encontrado en repositorios ni en AUR. Omitiendo."
+          continue
+        fi
+      fi
+      missing_pkgs+=("$pkg")
+    done
+    if [ "${#missing_pkgs[@]}" -gt 0 ]; then
+      if ! sudo pacman -S --needed --noconfirm "${missing_pkgs[@]}"; then
+        if command -v paru &>/dev/null; then
+          paru -S --needed --noconfirm "${missing_pkgs[@]}" || echo "[WARN] Falló la instalación de: ${missing_pkgs[*]}"
+        else
+          echo "[WARN] No se pudo instalar: ${missing_pkgs[*]}"
+        fi
+      fi
+    fi
+  }
+
   if echo "$gpu_info" | grep -iq "vmware"; then
     echo "[GPU] VMware"
-    sudo pacman -Sy --needed --noconfirm mesa xf86-video-vmware
+    try_install mesa
   elif echo "$gpu_info" | grep -iq "nvidia"; then
     echo "[GPU] NVIDIA"
     read -p "Instalar drivers NVIDIA propietarios? (y/N): " install_nvidia
     if [[ "$install_nvidia" =~ ^[Yy]$ ]]; then
-      sudo pacman -Sy --needed --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils
+      try_install nvidia-dkms nvidia-utils lib32-nvidia-utils
     fi
   elif echo "$gpu_info" | grep -iqE "amd|ati|radeon"; then
     echo "[GPU] AMD"
-    sudo pacman -Sy --needed --noconfirm mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
+    try_install mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
   elif echo "$gpu_info" | grep -iq "intel"; then
     echo "[GPU] Intel"
-    sudo pacman -Sy --needed --noconfirm mesa xf86-video-intel vulkan-intel lib32-vulkan-intel
+    try_install mesa xf86-video-intel vulkan-intel lib32-vulkan-intel
   else
     echo "[GPU] No detectada o no reconocida."
   fi
 }
+
 
 setup_audio_and_multimedia() {
   echo "[INFO] Instalando soporte multimedia y audio..."
