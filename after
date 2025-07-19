@@ -14,52 +14,6 @@ USERNAME="$1"
 #====================
 # Funciones
 #====================
-install_gpu_drivers() {
-  echo "[INFO] Detectando GPU..."
-  gpu_info=$(lspci | grep -i 'vga\|3d\|2d')
-
-  try_install() {
-    local pkgs=("$@")
-    local missing_pkgs=()
-    for pkg in "${pkgs[@]}"; do
-      if ! pacman -Si "$pkg" &>/dev/null; then
-        if ! command -v paru &>/dev/null || ! paru -Si "$pkg" &>/dev/null; then
-          echo "[WARN] Paquete '$pkg' no encontrado en repositorios ni en AUR. Omitiendo."
-          continue
-        fi
-      fi
-      missing_pkgs+=("$pkg")
-    done
-    if [ "${#missing_pkgs[@]}" -gt 0 ]; then
-      if ! sudo pacman -S --needed --noconfirm "${missing_pkgs[@]}"; then
-        if command -v paru &>/dev/null; then
-          paru -S --needed --noconfirm "${missing_pkgs[@]}" || echo "[WARN] Falló la instalación de: ${missing_pkgs[*]}"
-        else
-          echo "[WARN] No se pudo instalar: ${missing_pkgs[*]}"
-        fi
-      fi
-    fi
-  }
-
-  if echo "$gpu_info" | grep -iq "vmware"; then
-    echo "[GPU] VMware"
-    try_install mesa xf86-video-vmware
-  elif echo "$gpu_info" | grep -iq "nvidia"; then
-    echo "[GPU] NVIDIA"
-    read -p "Instalar drivers NVIDIA propietarios? (y/N): " install_nvidia
-    if [[ "$install_nvidia" =~ ^[Yy]$ ]]; then
-      try_install nvidia-dkms nvidia-utils lib32-nvidia-utils
-    fi
-  elif echo "$gpu_info" | grep -iqE "amd|ati|radeon"; then
-    echo "[GPU] AMD"
-    try_install mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
-  elif echo "$gpu_info" | grep -iq "intel"; then
-    echo "[GPU] Intel"
-    try_install mesa xf86-video-intel vulkan-intel lib32-vulkan-intel
-  else
-    echo "[GPU] No detectada o no reconocida."
-  fi
-}
 
 
 setup_audio_and_multimedia() {
@@ -77,6 +31,13 @@ configure_kde() {
   sudo systemctl enable firewalld
   sudo systemctl start firewalld
 
+  if [ -f /etc/sddm.conf ]; then
+    sudo sed -i \
+      -e 's/^#\?\s*User=.*/User=/' \
+      -e 's/^#\?\s*MinimumUid=.*/MinimumUid=1000/' \
+      -e 's/^#\?\s*MaximumUid=.*/MaximumUid=60000/' \
+      /etc/sddm.conf
+  fi
  
 }
 
@@ -198,7 +159,5 @@ configure_kde
 harden_ssh
 configure_grub_osprober
 install_custom_environment
-install_gpu_drivers
-
 sudo systemctl enable NetworkManager.service
 reboot
