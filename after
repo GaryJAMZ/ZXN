@@ -77,13 +77,7 @@ configure_kde() {
   sudo systemctl enable firewalld
   sudo systemctl start firewalld
 
-  if [ -f /etc/sddm.conf ]; then
-    sudo sed -i \
-      -e 's/^#\?\s*User=.*/User=/' \
-      -e 's/^#\?\s*MinimumUid=.*/MinimumUid=1000/' \
-      -e 's/^#\?\s*MaximumUid=.*/MaximumUid=60000/' \
-      /etc/sddm.conf
-  fi
+ 
 }
 
 harden_ssh() {
