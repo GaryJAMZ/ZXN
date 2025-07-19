@@ -103,9 +103,22 @@ install_custom_environment() {
 
     paru -S pamac-aur kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons zsh-syntax-highlighting zsh-autosuggestions
 
-    install_fonts "iosevka.zip"
-    install_fonts "icomoon.zip" "icomoon"
-    install_fonts "Hack.zip"
+    if install_fonts "iosevka.zip"; then
+      if install_fonts "icomoon.zip" "icomoon"; then
+        if install_fonts "Hack.zip"; then
+          echo "[INFO] Fuentes instaladas correctamente."
+        else
+          echo "[ERROR] Falló la instalación de Hack.zip" >&2
+          exit 1
+        fi
+      else
+        echo "[ERROR] Falló la instalación de icomoon.zip" >&2
+        exit 1
+      fi
+    else
+      echo "[ERROR] Falló la instalación de iosevka.zip" >&2
+      exit 1
+    fi
 
     mkdir -p "/home/$USERNAME/.config/kitty"
     mv kitty.conf color.ini "/home/$USERNAME/.config/kitty/"
