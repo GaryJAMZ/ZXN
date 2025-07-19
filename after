@@ -150,7 +150,10 @@ install_fonts() {
     cd /usr/share/fonts
     sudo unzip "$zip_file"
     sudo rm "$zip_file"
-    [[ -n "$subdir" ]] && sudo mv "$subdir"/*.ttf . && sudo rm -rf "$subdir"
+     if [[ -n "$subdir" && -d "$subdir" ]]; then
+      sudo mv "$subdir"/*.ttf . 
+      sudo rm -rf "$subdir"
+    fi
   fi
 }
 
