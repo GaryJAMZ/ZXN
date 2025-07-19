@@ -98,6 +98,7 @@ install_custom_environment() {
 
     git clone https://aur.archlinux.org/paru.git "/home/$USERNAME/Desktop/repos/paru"
     cd "/home/$USERNAME/Desktop/repos/paru"
+    sudo pacman -S --needed --noconfirm debugedit fakeroot
     makepkg -si
 
     paru -S pamac-aur kvantum ttf-jetbrains-mono ttf-font-awesome ttf-font-awesome-4 ttf-material-design-icons zsh-syntax-highlighting zsh-autosuggestions
