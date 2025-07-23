@@ -1,6 +1,7 @@
 #!/bin/bash
 # Uso: ./install <dispositivo> <nombre_crypt> <paquetes_adicionales> <param_finish> <param_extra>
 # Ejemplo: ./install sda mycrypt "package1 package2" param_finish param_extra
+
 set -euo pipefail
 
 if [ "$#" -lt 5 ]; then
@@ -14,60 +15,60 @@ PAQUETES_ADICIONALES=$3
 PARAM_FINISH=$4
 PARAM_EXTRA=$5
 
-# Sincronizar repositorios
-pacman -Sy --noconfirm
+read -rp "¿Deseas borrar completamente el disco /dev/$DISPOSITIVO? (sí/no): " RESPUESTA
 
-# Crear tabla de particiones y limpiar el MBR
-parted /dev/$DISPOSITIVO mklabel bsd
-dd bs=1k count=1 if=/dev/zero of=/dev/$DISPOSITIVO status=none
-partprobe /dev/$DISPOSITIVO
-sgdisk /dev/$DISPOSITIVO -g
+if [[ "$RESPUESTA" =~ ^[Ss][Íi]$ || "$RESPUESTA" == "s" ]]; then
+    echo "Borrando y particionando disco /dev/$DISPOSITIVO..."
 
-# Crear particiones: 
-# - Primera partición EFI de 500M
-# - Segunda para LUKS con el resto del disco
-efi_start=$(sgdisk /dev/$DISPOSITIVO -F)
-sgdisk /dev/$DISPOSITIVO -n 1:$efi_start:500M -t 1:ef00
-luks_start=$(sgdisk /dev/$DISPOSITIVO -F)
-luks_end=$(sgdisk /dev/$DISPOSITIVO -E)
-sgdisk /dev/$DISPOSITIVO -n 2:$luks_start:$luks_end
+    pacman -Sy --noconfirm
 
-echo "Configuración de cifrado con LUKS"
+    parted /dev/$DISPOSITIVO mklabel bsd
+    dd bs=1k count=1 if=/dev/zero of=/dev/$DISPOSITIVO status=none
+    partprobe /dev/$DISPOSITIVO
+    sgdisk /dev/$DISPOSITIVO -g
 
-# Diferenciamos nombres de partición según si es sd* o nvme*
-if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
-    PART_EFI="/dev/${DISPOSITIVO}1"
-    PART_LUKS="/dev/${DISPOSITIVO}2"
+    efi_start=$(sgdisk /dev/$DISPOSITIVO -F)
+    sgdisk /dev/$DISPOSITIVO -n 1:$efi_start:+500M -t 1:ef00
+    luks_start=$(sgdisk /dev/$DISPOSITIVO -F)
+    luks_end=$(sgdisk /dev/$DISPOSITIVO -E)
+    sgdisk /dev/$DISPOSITIVO -n 2:$luks_start:$luks_end
+
+    if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
+        PART_EFI="/dev/${DISPOSITIVO}1"
+        PART_LUKS="/dev/${DISPOSITIVO}2"
+    else
+        PART_EFI="/dev/${DISPOSITIVO}p1"
+        PART_LUKS="/dev/${DISPOSITIVO}p2"
+    fi
+
 else
-    # Suponiendo que en otros casos la convención es <dispositivo>p1 y p2
-    PART_EFI="/dev/${DISPOSITIVO}p1"
-    PART_LUKS="/dev/${DISPOSITIVO}p2"
+    echo "No se borrará el disco. Se lanzará cfdisk para crear las particiones manualmente..."
+    sleep 2
+    cfdisk /dev/$DISPOSITIVO
+
+    echo "Particionamiento manual completo."
+    lsblk /dev/$DISPOSITIVO
+
+    read -rp "Introduce el nombre de la partición EFI (ejemplo: /dev/sda1): " PART_EFI
+    read -rp "Introduce el nombre de la partición raíz (LUKS) (ejemplo: /dev/sda2): " PART_LUKS
 fi
 
-# Configurar LUKS en la partición LUKS
-cryptsetup -y -v --cipher aes-xts-plain64 --key-size 512 --hash sha512 luksFormat $PART_LUKS
-echo "Cifrado finalizado"
-cryptsetup open $PART_LUKS $CRYPT_NAME
+echo "Configurando cifrado LUKS..."
+cryptsetup -y -v --cipher aes-xts-plain64 --key-size 512 --hash sha512 luksFormat "$PART_LUKS"
+cryptsetup open "$PART_LUKS" "$CRYPT_NAME"
 
-# Formatear particiones
 mkfs.ext4 /dev/mapper/$CRYPT_NAME
-mkfs.fat -F32 $PART_EFI
+mkfs.fat -F32 "$PART_EFI"
 
-# Montar sistemas de archivos
 mount /dev/mapper/$CRYPT_NAME /mnt
 mkdir -p /mnt/boot
-mount $PART_EFI /mnt/boot
+mount "$PART_EFI" /mnt/boot
 
-# Instalar sistema base y paquetes adicionales
-pacstrap /mnt base linux-zen linux-firmware vim $PAQUETES_ADICIONALES
-
-# Generar fstab
+pacstrap /mnt base linux-zen linux-zen-headers linux-firmware vim $PAQUETES_ADICIONALES
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# Hacer ejecutables los scripts finish, after y otros
 chmod +x finish after rootinstaller
 
-# Mover scripts y archivos de soporte al nuevo sistema
 mv finish /mnt
 mv after /mnt
 mv nemo /mnt
@@ -75,9 +76,7 @@ mv rec.zip /mnt
 mv rootinstaller /mnt
 mv Zipher.zip /mnt
 
-# Entrar al entorno chroot y ejecutar finish con los parámetros necesarios
 arch-chroot /mnt ./finish "$PARAM_FINISH" "$DISPOSITIVO" "$CRYPT_NAME" "$PARAM_EXTRA"
 
-# Desmontar y reiniciar
 umount -a
 reboot
