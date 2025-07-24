@@ -6,12 +6,12 @@
 set -euo pipefail
 
 if [ "$#" -lt 4 ]; then
-    echo "Uso: $0 <hostname> <dispositivo> <nombre_crypt> <usuario>"
+    echo "Uso: $0 <hostname> <part_luks> <nombre_crypt> <usuario>"
     exit 1
 fi
 
 HOSTNAME=$1
-DISPOSITIVO=$2
+PART_LUKS=$2
 CRYPT_NAME=$3
 USUARIO=$4
 
@@ -48,12 +48,6 @@ passwd
 echo "Instalando GRUB, NetworkManager y otros..."
 pacman -Sy --noconfirm grub efibootmgr networkmanager sudo unzip
 
-# Detectar partición cifrada y obtener UUID
-if [[ "$DISPOSITIVO" =~ sd[a-zA-Z] ]]; then
-    PART_LUKS="/dev/${DISPOSITIVO}2"
-else
-    PART_LUKS="/dev/${DISPOSITIVO}p2"
-fi
 
 UUID_LUKS=$(blkid -s UUID -o value $PART_LUKS)
 
