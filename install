@@ -76,7 +76,7 @@ mv rec.zip /mnt
 mv rootinstaller /mnt
 mv Zipher.zip /mnt
 
-arch-chroot /mnt ./finish "$PARAM_FINISH" "$DISPOSITIVO" "$CRYPT_NAME" "$PARAM_EXTRA"
+arch-chroot /mnt ./finish "$PARAM_FINISH" "$PART_LUKS" "$CRYPT_NAME" "$PARAM_EXTRA"
 
 umount -a
 reboot
