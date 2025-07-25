@@ -26,7 +26,7 @@ setup_audio_and_multimedia() {
 
 configure_kde() {
   echo "[INFO] Instalando KDE Plasma..."
-  sudo pacman -Sy --needed --noconfirm plasma-desktop sddm networkmanager firewalld
+  sudo pacman -Sy --needed --noconfirm plasma-desktop sddm networkmanager firewalld git pkg-config
   sudo systemctl enable sddm.service
   sudo systemctl enable firewalld
   sudo systemctl start firewalld
